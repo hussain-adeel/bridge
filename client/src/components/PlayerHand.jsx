@@ -90,7 +90,7 @@ export default function PlayerHand({cards, leadSuit, onPlayCard}) {
     })
 
     return (
-        <div className="w-full min-h-[200px] flex flex-col items-center justify-end relative">
+        <div className="w-full min-h-50 flex flex-col items-center justify-end relative">
             <div className="flex flex-row justify-center items-end h-40">
                 {sortedCards.map((singleCard, index) => {
                     const isNewSuit = index > 0 && singleCard.suit != sortedCards[index-1].suit

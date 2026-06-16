@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import PlayerHand from './components/PlayerHand';
 import CardBack from './components/CardBack';
+import OpponentHand from './components/OpponentHand';
+import Bidding from './components/Bidding';
 
 function App() {
   
@@ -33,14 +35,16 @@ const dummyHand = [
     // 2. A dark green background that pushes everything to the bottom center
   
     <div className="min-h-screen bg-green-800 flex items-end justify-center pb-20">
-      <CardBack/>
+      {/* <CardBack teamColor={"red"}/> */}
       {/* 3. Pass the props! (Notice no 'e' on leadSuit, and we pass the function in) */}
       {/* <PlayerHand 
         cards={dummyHand} 
         leadSuit="Spades" 
         onPlayCard={handleTestPlay} 
       /> */}
-
+      <Bidding>
+        
+      </Bidding>
       
 
     </div>
