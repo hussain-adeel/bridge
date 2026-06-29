@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Card from "./Card";
 
-export default function PlayerHand({cards, leadSuit, onPlayCard}) {
+export default function PlayerHand({cards, leadSuit, onPlayCard, isMyTurn}) {
 
     const [selectedCard, setSelectedCard] = useState(null);
 
@@ -116,8 +116,12 @@ export default function PlayerHand({cards, leadSuit, onPlayCard}) {
 
             <button 
                 onClick={handlePlay}
-                disabled={selectedCard === null}
-                className="m-10 px-10 py-3 text-white bg-black hover:text-black rounded-full font-bold hover:bg-amber-50 hover:cursor-pointer"
+                disabled={selectedCard === null || !isMyTurn}
+                className={`
+                            m-10 px-10 py-3 text-white bg-black rounded-full font-bold
+                            hover:text-black hover:bg-amber-50 hover:cursor-pointer
+                            disabled:opacity-50 disabled:bg-black disabled:cursor-not-allowed disabled:hover:bg-black disabled:hover:text-white
+                `}
             >
                 PLAY  
             </button>
