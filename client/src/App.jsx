@@ -3,6 +3,8 @@ import PlayerHand from './components/PlayerHand';
 import CardBack from './components/CardBack';
 import OpponentHand from './components/OpponentHand';
 import Bidding from './components/Bidding';
+import Card from './components/Card';
+import MiddleStack from './components/MiddleStack';
 
 function App() {
   
@@ -26,6 +28,13 @@ const dummyHand = [
   { suit: "Clubs", rank: "2" }
 ];
 
+const playedCards = {
+    bottom: { suit: 'Hearts', rank: 'A' }, 
+    left: { suit: 'Spades', rank: 'K' },  
+    top: { suit: 'Spades', rank: '10' },                             
+    right: { suit: 'Spades', rank: '2' }                            
+}
+
   // 1. We create a fake function to act as our walkie-talkie
   const handleTestPlay = (card) => {
     console.log("BOOM! You played:", card);
@@ -42,7 +51,7 @@ const dummyHand = [
         leadSuit="Spades" 
         onPlayCard={handleTestPlay} 
       /> */}
-      <Bidding isMyTurn={true}>
+      {/* <Bidding isMyTurn={true}>
         
       </Bidding>
       <PlayerHand 
@@ -50,7 +59,12 @@ const dummyHand = [
         leadSuit="Spades" 
         onPlayCard={handleTestPlay} 
         isMyTurn={false}
-      />
+      /> */}
+      <MiddleStack playedCards={playedCards}></MiddleStack>
+
+      <PlayerHand cards={dummyHand} leadSuit={"Diamonds"} isMyTurn={true}>
+
+      </PlayerHand>
 
     </div>
   );
