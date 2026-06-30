@@ -1,4 +1,4 @@
-export default function Card({rank, suit, onClick, isPlayable = true, isSelected = false}) {
+export default function Card({rank, suit}) {
     const isRed = suit == 'Hearts' || suit == 'Diamonds';
 
     const suitSymbols = {
@@ -8,21 +8,19 @@ export default function Card({rank, suit, onClick, isPlayable = true, isSelected
     'Diamonds': '♦'
     }
 
+                // ${isSelected ? 'hover:-translate-y-8 shadow-2xl ring-3 ring-red-500' : ''}
+                
+                // ${!isSelected && isPlayable ? 'cursor-pointer bg-white hover:-translate-y-6 hover:shadow-2xl hover:z-0' : ''}
+
+                // ${!isPlayable ? 'bg-gray-300 opacity-50 cursor-not-allowed greyscale' : ''}
+
     return (
         <div 
-            onClick={onClick}
             className={`w-20 h-32 rounded-lg shadow-xl border border-gray-300
-                flex flex-col justify-between p2 select-none delay-100
-                transition-transform duration-300 bg-white overflow-hidden relative
+                flex flex-col justify-between p-1 select-none bg-white overflow-hidden relative
                 
-                
-                ${isSelected ? 'hover:-translate-y-8 shadow-2xl ring-3 ring-red-500' : ''}
-                
-                ${!isSelected && isPlayable ? 'cursor-pointer bg-white hover:-translate-y-6 hover:shadow-2xl hover:z-0' : ''}
-
-                ${!isPlayable ? 'bg-gray-300 opacity-50 cursor-not-allowed greyscale' : ''}
-
                 ${isRed ? 'text-red-600' : 'text-gray-900'}
+
             `}
         >
             <div className="flex flex-col items-center leading-none self-start p-1">

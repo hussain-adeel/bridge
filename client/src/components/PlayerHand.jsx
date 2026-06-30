@@ -82,6 +82,15 @@ export default function PlayerHand({cards, leadSuit, onPlayCard, isMyTurn}) {
         return points
     }
 
+    const isCardPlayable = (card) => {
+        const hasLeadSuit = cards.some(card => card.suit == leadSuit)
+
+        if (hasLeadSuit) {
+            if (card.suit == leadSuit) return true;
+        }
+        else return true;
+    }
+
     const sortedCards = [...cards].sort((cardA, cardB) => {
         const cardAPoints = calculatePoints(cardA)
         const cardBPoints = calculatePoints(cardB)
@@ -94,20 +103,26 @@ export default function PlayerHand({cards, leadSuit, onPlayCard, isMyTurn}) {
             <div className="flex flex-row justify-center items-end h-40">
                 {sortedCards.map((singleCard, index) => {
                     const isNewSuit = index > 0 && singleCard.suit != sortedCards[index-1].suit
-
+                    const isSelected = selectedCard === index;
+                    const isPlayable = isCardPlayable(singleCard);
                     return (
                         <div 
                             key={index}
                             className={`
-                                first:ml-0
+                                first:ml-0 delay-100 transition-transform duration-300 rounded-lg
+
                                 ${isNewSuit ? '-ml-8' : '-ml-12'}
-                            `}>
+                                ${isSelected ? 'hover:-translate-y-8 shadow-2xl ring-3 ring-red-500' : ''}
+                                ${!isPlayable ? 'brightness-80 cursor-not-allowed pointer-events-none' : ''}
+                                ${!isSelected && isPlayable ? 'cursor-pointer bg-white hover:-translate-y-6 hover:shadow-2xl hover:z-0' : ''}
+
+                            `}
+                            onClick={() => handleCardClick(index)}
+                        >
                         <Card
                             key={index}
                             suit={singleCard.suit}
                             rank={singleCard.rank}
-                            isSelected={selectedCard === index}
-                            onClick={() => handleCardClick(index)}
                         /> 
                         </div>
                     )
