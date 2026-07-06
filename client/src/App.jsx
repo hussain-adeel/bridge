@@ -5,6 +5,7 @@ import OpponentHand from './components/OpponentHand';
 import Bidding from './components/Bidding';
 import Card from './components/Card';
 import MiddleStack from './components/MiddleStack';
+import BridgeGameBoard from './components/BridgeGameBoard';
 
 function App() {
   
@@ -35,38 +36,56 @@ const playedCards = {
     right: { suit: 'Spades', rank: '2' }                            
 }
 
+const mockGameState = {
+  // Toggle between 'BIDDING' and 'PLAYING' to test your components
+  gameStage: 'PLAYING', 
+  roomCode: 'A23F',
+
+  // player's cards
+  hand: ["A-hearts, K-spades, 9-diamonds, 2-clubs, 3-hearts, 4-hearts, 9-clubs, 10-diamonds"],
+  
+  // Info for the Center Control Tower
+  contract: {
+    suit: 'Hearts',
+    tricks: 4,
+    calledBy: 'team'
+  },
+
+  scores: {
+    team: 1,
+    enemy: 3
+  },
+  
+  // Info for the Header
+  players: {
+    north: { id: 'p1', name: 'Alice' },
+    south: { id: 'p2', name: 'Bob' },
+    east: { id: 'p3', name: 'Charlie' },
+    west: { id: 'p4', name: 'David' }
+  },
+
+  // Info for the Board
+  playingData: {
+    cardsOnTable: [
+      { suit: 'hearts', rank: 'A', playedBy: 'north' },
+      { suit: 'hearts', rank: 'K', playedBy: 'east' }
+    ]
+  },
+
+  // Bidding state for when stage === 'BIDDING'
+  biddingData: {
+    history: ['1H', 'Pass', '2H', 'Pass', '4H', 'Pass', 'Pass', 'Pass'],
+    currentPlayer: 'south'
+  }
+};
+
   // 1. We create a fake function to act as our walkie-talkie
   const handleTestPlay = (card) => {
     console.log("BOOM! You played:", card);
   };
 
   return (
-    // 2. A dark green background that pushes everything to the bottom center
-  
-    <div className="min-h-screen bg-green-800 grid items-end justify-center pb-20">
-      {/* <CardBack teamColor={"red"}/> */}
-      {/* 3. Pass the props! (Notice no 'e' on leadSuit, and we pass the function in) */}
-      {/* <PlayerHand 
-        cards={dummyHand} 
-        leadSuit="Spades" 
-        onPlayCard={handleTestPlay} 
-      /> */}
-      {/* <Bidding isMyTurn={true}>
-        
-      </Bidding>
-      <PlayerHand 
-        cards={dummyHand} 
-        leadSuit="Spades" 
-        onPlayCard={handleTestPlay} 
-        isMyTurn={false}
-      /> */}
-      <MiddleStack playedCards={playedCards}></MiddleStack>
-
-      <PlayerHand cards={dummyHand} leadSuit={"Diamonds"} isMyTurn={true}>
-
-      </PlayerHand>
-
-    </div>
+    <BridgeGameBoard gameState={mockGameState}></BridgeGameBoard>
   );
 }
 
