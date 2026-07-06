@@ -1,28 +1,5 @@
 import CardBack from "./CardBack";
 
-/*
-                {sortedCards.map((singleCard, index) => {
-                    const isNewSuit = index > 0 && singleCard.suit != sortedCards[index-1].suit
-
-                    return (
-                        <div 
-                            key={index}
-                            className={`
-                                first:ml-0
-                                ${isNewSuit ? '-ml-8' : '-ml-12'}
-                            `}>
-                        <Card
-                            key={index}
-                            suit={singleCard.suit}
-                            rank={singleCard.rank}
-                            isSelected={selectedCard === index}
-                            onClick={() => handleCardClick(index)}
-                        /> 
-                        </div>
-                    )
-                })} 
-*/
-
 export default function OpponentHand({numCards, dir, color}) {
 
 
