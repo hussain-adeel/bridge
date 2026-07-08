@@ -1,1 +1,14 @@
 @import "tailwindcss";
+
+@theme {
+    /* Background Colors */
+    --color-board-bg: #1C1C1E;
+    --color-bidding-bg: #2C2C2E;
+
+    /* Text Colors */
+    --color-text-main: #D4AF37;
+
+    /* Team Colors */
+    --color-friendly: #7bf1a8;
+    --color-enemy: oklch(80.8% 0.114 19.571);
+}
