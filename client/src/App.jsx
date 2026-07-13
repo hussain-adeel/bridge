@@ -44,7 +44,8 @@ const localUser = {
 const mockGameState = {
   // --- 1. GAME META ---
   roomCode: 'A23F',
-  gamePhase: 'PLAYING', 
+  gamePhase: 'PLAYING',
+  round: 1, 
   activePlayerIndex: 0, // It is Char's turn
 
   // --- 2. TEAMS (Objective Server Data) ---
@@ -95,10 +96,12 @@ const mockGameState = {
 
   // --- 7. ACTIVE TABLE (The current trick) ---
   playingData: {
-    ledSuit: 'spades', 
+    ledSuit: 'hearts', 
     cardsOnTable: [
       { playerIndex: 0, suit: 'spades', rank: 'Q' }, 
-      { playerIndex: 1, suit: 'spades', rank: '2' }  
+      { playerIndex: 1, suit: 'spades', rank: '2' },
+      { playerIndex: 2, suit: 'spades', rank: '8' },
+      { playerIndex: 3, suit: 'spades', rank: 'A' }  
     ]
   },
 

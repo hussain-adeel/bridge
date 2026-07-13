@@ -4,7 +4,7 @@ import { SunIcon } from "@heroicons/react/24/solid";
 export default function CardBack({color}) {
     return (
         <div
-            className="bg-white border-black w-20 h-32 rounded-lg shadow-xl border flex flex-col justify-center items-center select-none"
+            className="bg-white border-black w-20 h-32 rounded-lg shadow-xl border flex flex-col justify-center items-center select-none scale-40"
         >
             <SunIcon
                 className={`

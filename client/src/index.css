@@ -12,3 +12,10 @@
     --color-friendly: #7bf1a8;
     --color-enemy: oklch(80.8% 0.114 19.571);
 }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #0a0a0a;
+}

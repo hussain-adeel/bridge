@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Card from "./Card";
 
-export default function PlayerHand({cards, leadSuit, onPlayCard, isMyTurn}) {
+export default function PlayerHand({cards, leadSuit, onPlayCard, isMyTurn, tricksWon}) {
 
     const [selectedCard, setSelectedCard] = useState(null);
 
@@ -23,16 +23,16 @@ export default function PlayerHand({cards, leadSuit, onPlayCard, isMyTurn}) {
         let points = 0
         
         switch (card.suit) {
-            case 'Spades':
+            case 'spades':
                 points += 400
                 break
-            case 'Hearts':
+            case 'hearts':
                 points += 300
                 break
-            case 'Clubs':
+            case 'clubs':
                 points += 200
                 break
-            case 'Diamonds':
+            case 'diamonds':
                 points += 100
                 break
         }
@@ -98,8 +98,13 @@ export default function PlayerHand({cards, leadSuit, onPlayCard, isMyTurn}) {
         return cardBPoints - cardAPoints
     })
 
+    const handText = `You've made ${tricksWon} hands.`;
+
+
+
     return (
         <div className="w-full min-h-50 flex flex-col items-center justify-end relative">
+            <h1 className={`flex ${isMyTurn ? 'text-text-main' : 'text-white'} font-extrabold font-mono`}>{isMyTurn ? "It's your turn!" : handText}</h1>
             <div className="flex flex-row justify-center items-end h-40">
                 {sortedCards.map((singleCard, index) => {
                     const isNewSuit = index > 0 && singleCard.suit != sortedCards[index-1].suit
@@ -112,7 +117,7 @@ export default function PlayerHand({cards, leadSuit, onPlayCard, isMyTurn}) {
                                 first:ml-0 delay-100 transition-transform duration-300 rounded-lg
 
                                 ${isNewSuit ? '-ml-8' : '-ml-12'}
-                                ${isSelected ? 'hover:-translate-y-8 shadow-2xl ring-3 ring-red-500' : ''}
+                                ${isSelected ? '-translate-y-8 shadow-2xl ring-3 ring-red-500' : ''}
                                 ${!isPlayable ? 'brightness-80 cursor-not-allowed pointer-events-none' : ''}
                                 ${!isSelected && isPlayable ? 'cursor-pointer bg-white hover:-translate-y-6 hover:shadow-2xl hover:z-0' : ''}
 

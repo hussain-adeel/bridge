@@ -1,11 +1,11 @@
 export default function Card({rank, suit}) {
-    const isRed = suit == 'Hearts' || suit == 'Diamonds';
+    const isRed = suit == 'hearts' || suit == 'diamonds';
 
     const suitSymbols = {
-    'Spades': '♠',
-    'Hearts': '♥',
-    'Clubs': '♣',
-    'Diamonds': '♦'
+    'spades': '♠',
+    'hearts': '♥',
+    'clubs': '♣',
+    'diamonds': '♦'
     }
 
                 // ${isSelected ? 'hover:-translate-y-8 shadow-2xl ring-3 ring-red-500' : ''}
