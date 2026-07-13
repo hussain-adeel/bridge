@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import PlayerHand from './components/PlayerHand';
-import CardBack from './components/CardBack';
-import OpponentHand from './components/OpponentHand';
 import Bidding from './components/Bidding';
 import Card from './components/Card';
 import MiddleStack from './components/MiddleStack';
@@ -45,8 +43,8 @@ const mockGameState = {
   // --- 1. GAME META ---
   roomCode: 'A23F',
   gamePhase: 'PLAYING',
-  round: 1, 
-  activePlayerIndex: 0, // It is Char's turn
+  round: 1, // bidding round 1, 2 dealing round 1, 2, 3 playing rounds 1 - up to 13
+  activePlayerIndex: 0,
 
   // --- 2. TEAMS (Objective Server Data) ---
   // No color data here! Just abstract team identifiers and optional display names.
@@ -57,10 +55,10 @@ const mockGameState = {
 
   // --- 3. ROSTER (Clockwise Order) ---
   players: [
-    { id: 'socket_1', index: 0, username: 'Alice', teamId: 'team_1', cardCount: 12 }, 
-    { id: 'socket_2', index: 1, username: 'Bob',   teamId: 'team_2', cardCount: 12 }, 
-    { id: 'socket_3', index: 2, username: 'Char',  teamId: 'team_1', cardCount: 13 }, 
-    { id: 'socket_4', index: 3, username: 'David', teamId: 'team_2', cardCount: 13 }  
+    { id: 'socket_1', index: 0, username: 'Alice', teamId: 'team_1', tricksWon: 12 }, 
+    { id: 'socket_2', index: 1, username: 'Bob',   teamId: 'team_2', tricksWon: 12 }, 
+    { id: 'socket_3', index: 2, username: 'Char',  teamId: 'team_1', tricksWon: 13 }, 
+    { id: 'socket_4', index: 3, username: 'David', teamId: 'team_2', tricksWon: 13 }  
   ],
 
   // --- 4. LOCAL PLAYER INFO ---
@@ -73,6 +71,12 @@ const mockGameState = {
     { suit: 'clubs', rank: 'J' },
     { suit: 'clubs', rank: '7' },
     { suit: 'clubs', rank: '2' },
+    { suit: 'hearts', rank: 'A' },
+    { suit: 'hearts', rank: 'K' },
+    { suit: 'spades', rank: '9' },
+    { suit: 'diamonds', rank: '4' },
+    { suit: 'clubs', rank: 'J' },
+    { suit: 'clubs', rank: '7' },
   ],
 
   // --- 5. BIDDING HISTORY ---

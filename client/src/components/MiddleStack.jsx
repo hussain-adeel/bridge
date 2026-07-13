@@ -3,10 +3,14 @@ import Card from "./Card";
 
 export default function MiddleStack({cardsOnTable, myIndex}) {
 
+    if (myIndex === null || myIndex === undefined) return null;
+
     const playedCards = useMemo(() => {
         const positions = {bottom: null, left: null, right: null, top: null};
 
-        cardsOnTable?.forEach(card => {
+        const safeCardsOnTable = cardsOnTable ?? [];
+
+        safeCardsOnTable.forEach(card => {
             const offset = (card.playerIndex - myIndex + 4 ) % 4;
             if (offset == 0) positions.bottom = card;
             if (offset == 1) positions.left = card;
