@@ -4,6 +4,7 @@ import Bidding from './components/Bidding';
 import Card from './components/Card';
 import MiddleStack from './components/MiddleStack';
 import BridgeGameBoard from './components/BridgeGameBoard';
+import End from './components/End';
 
 function App() {
   
@@ -127,7 +128,8 @@ const mockGameState = {
   };
 
   return (
-    <BridgeGameBoard gameState={mockGameState} localUser={localUser}></BridgeGameBoard>
+    //<BridgeGameBoard gameState={mockGameState} localUser={localUser}></BridgeGameBoard>
+    <End></End>
   );
 }
 
