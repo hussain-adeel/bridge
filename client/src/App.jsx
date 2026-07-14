@@ -128,8 +128,7 @@ const mockGameState = {
   };
 
   return (
-    //<BridgeGameBoard gameState={mockGameState} localUser={localUser}></BridgeGameBoard>
-    <End></End>
+    <BridgeGameBoard gameState={mockGameState} localUser={localUser}></BridgeGameBoard>
   );
 }
 

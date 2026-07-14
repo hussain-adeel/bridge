@@ -1,9 +1,9 @@
-import { useState } from "react";
 import BridgeGameHeader from "./BridgeGameHeader";
 import PlayerAvatar from "./PlayerAvatar";
 import PlayerHand from "./PlayerHand";
 import Bidding from "./Bidding";
 import MiddleStack from "./MiddleStack";
+import End from "./End";
 
 export default function BridgeGameBoard({gameState, localUser}) {
 
@@ -40,10 +40,18 @@ export default function BridgeGameBoard({gameState, localUser}) {
     const teamScore = gameState?.currentHandTricks?.[myTeamId] ?? 0;
     const enemyScore = gameState?.currentHandTricks?.[enemyTeamId] ?? 0;
     const tricksWon = gameState?.players?.find(p => p.index === myIndex)?.tricksWon ?? 0;
+    const showEndScreen = (gameState?.gamePhase === "ROUND_END" || gameState?.gamePhase === "MATCH_END") ?? false;
+    const teamWonRound = teamScore > enemyScore;
+    const matchOver = gameState?.gamePhase === "MATCH_END" ?? false
+    const teamMatchScore = gameState?.matchScore?.[myTeamId] ?? 0;
+    const enemyMatchScore = gameState?.matchScore?.[enemyTeamId] ?? 0;
+    const teamWonMatch = teamMatchScore > enemyMatchScore ?? false;
+
+
 
 
     return (
-        <div className="w-full h-screen box-border bg-board-bg flex flex-col overflow-hidden">
+        <div className="relative w-full h-screen box-border bg-board-bg flex flex-col overflow-hidden">
             
             <BridgeGameHeader 
                 gamePhase={gameState?.gamePhase}
@@ -64,19 +72,21 @@ export default function BridgeGameBoard({gameState, localUser}) {
                         <div className="col-start-2 row-start-1 flex justify-center items-center">
                             <PlayerAvatar 
                                 player={partner} 
-                                isTurn={isTurn(partner?.index)} 
+                                isTurn={isTurn(partner?.index)}
+                                gamePhase={gameState?.gamePhase}
                             />
                         </div>
 
                         <div className="col-start-1 row-start-2 flex justify-center items-center rotate-90 origin-center">
                             <PlayerAvatar 
                                 player={leftOpponent} 
-                                isTurn={isTurn(leftOpponent?.index)} 
+                                isTurn={isTurn(leftOpponent?.index)}
+                                gamePhase={gameState?.gamePhase}
                             />
                         </div>
 
                         <div className="col-start-2 row-start-2 flex justify-center items-center">
-                            {(gameState.gamePhase === "BIDDING" || gameState.gamePhase === "DEALING") ? 
+                            {(gameState.gamePhase === "BIDDING" || gameState.gamePhase === "DEALING") ? ( 
                             <Bidding 
                                 currSuit={gameState?.contract?.suit} 
                                 currTricks={gameState?.contract?.tricks}  
@@ -86,17 +96,31 @@ export default function BridgeGameBoard({gameState, localUser}) {
                                 onBid={(bid) => console.log("Bid placed: ", bid)}
                                 onPass={() => console.log("passed")}
                             /> 
-                            : 
+                            ) : gameState.gamePhase === "PLAYING" ? (
                             <MiddleStack 
                                 cardsOnTable={gameState.playingData?.cardsOnTable ?? []} 
-                                myIndex={myIndex} 
-                            />}
+                                myIndex={myIndex}
+                            />
+                            ) : (
+                            <End
+                                teamWonRound={teamWonRound}
+                                teamRoundScore={teamScore}
+                                enemyRoundScore={enemyScore}
+                                matchOver={matchOver}
+                                teamWonMatch={teamWonMatch}
+                                teamMatchScore={teamMatchScore}
+                                enemyMatchScore={enemyMatchScore}
+                                onReturnToLobby={() => console.log("Return to lobby")}
+                            />
+                            )
+                        }
                         </div>
 
                         <div className="col-start-3 row-start-2 flex justify-center items-center -rotate-90 origin-center">
                             <PlayerAvatar 
                                 player={rightOpponent} 
-                                isTurn={isTurn(rightOpponent?.index)} 
+                                isTurn={isTurn(rightOpponent?.index)}
+                                gamePhase={gameState?.gamePhase}
                             />
                         </div>
 
@@ -105,7 +129,7 @@ export default function BridgeGameBoard({gameState, localUser}) {
                                 cards={myCards} 
                                 leadSuit={leadSuit} 
                                 onPlayCard={(card) => console.log("Played", card)} 
-                                gamePhase={gameState?.gamePhase ?? "LOADING"}
+                                gamePhase={gameState?.gamePhase}
                                 isMyTurn={isMyTurn} 
                                 tricksWon={tricksWon}
                             />

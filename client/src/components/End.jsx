@@ -36,7 +36,7 @@ export default function End({teamWonRound, teamRoundScore, enemyRoundScore, matc
     }
 
     return (
-        <div className="z-100 w-full max-w-md flex flex-col mx-auto bg-slate-800 p-4 rounded-xl shadow-2xl border border-slate-600 gap-6 font-normal select-none items-center">
+        <div className="relative opacity-90 z-100 w-full max-w-md flex flex-col mx-auto bg-slate-800 p-4 rounded-xl shadow-2xl border border-slate-600 gap-6 font-normal select-none items-center">
             <div className="cursor-default text-center">
                 <h1 className="text-white font-extrabold text-3xl mb-2">
                     {safeMatchOver ? "Match Summary" : "Round Summary"}

@@ -1,7 +1,8 @@
-export default function PlayerAvatar({ player, isTurn }) {
+export default function PlayerAvatar({ player, isTurn, gamePhase }) {
     
     if (!player) return null;
     const safeIsTurn = isTurn ?? false;
+    const safeGamePhase = gamePhase ?? "LOADING"
 
     return (
         <div className={
@@ -15,7 +16,7 @@ export default function PlayerAvatar({ player, isTurn }) {
             <span className="font-bold uppercase truncate">{player.username}</span>
 
             <span className="font-mono font-bold md:mt-1">
-                {player.tricksWon || 0} HANDS
+                {safeGamePhase === "PLAYING" ? `${player.tricksWon || 0} HANDS` : ""}
             </span>
         </div>
     );

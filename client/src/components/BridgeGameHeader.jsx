@@ -1,4 +1,3 @@
-import { useState } from "react";
 import bridge_logo from "../assets/bridge_logo.svg";
 
 export default function BridgeGameHeader({gamePhase, isMyTeamBid, isMyTurn, tricksCalled, suitCalled, teamScore, enemyScore}) {
