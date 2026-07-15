@@ -7,6 +7,7 @@ import BridgeGameBoard from './components/BridgeGameBoard';
 import End from './components/End';
 import Lobby from './components/Lobby';
 import LoadingScreen from './components/LoadingScreen';
+import LandingPage from './components/LandingPage';
 
 function App() {
   
@@ -163,8 +164,9 @@ function App() {
 
   return (
     //<BridgeGameBoard gameState={mockGameState} localUser={localUser}></BridgeGameBoard>
-    <Lobby localUser={mockLocalUser} toggleReady={mockReady} roundsInMatch={5} roomCode={mockGameState?.roomCode ?? "DFLT"} players={mockPlayers} />
+    //<Lobby localUser={mockLocalUser} toggleReady={mockReady} roundsInMatch={5} roomCode={mockGameState?.roomCode ?? "DFLT"} players={mockPlayers} />
     //<LoadingScreen></LoadingScreen>
+    <LandingPage></LandingPage>
   );
 }
 
