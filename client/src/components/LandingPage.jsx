@@ -1,8 +1,9 @@
 import bridge_logo from '../assets/bridge_logo.svg'
+import Login from './Login'
 
 export default function LandingPage({}) {
     return (
-        <div className="w-full h-screen p-3 flex flex-col items-center bg-board-bg">
+        <div className="w-full h-screen p-8 md:p-12 flex flex-col items-center bg-board-bg">
             <span className='-mb-10 text-left text-white font-bold'>Welcome To</span>
             <img 
                 src={bridge_logo} 
@@ -10,8 +11,7 @@ export default function LandingPage({}) {
                 className="w-md"
             />
             <div className='flex flex-col items-center'>
-                <button>Log In</button>
-                <button>Game Rules</button>
+                <Login></Login>
             </div>
         </div>
     )

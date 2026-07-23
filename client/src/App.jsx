@@ -1,13 +1,11 @@
-import { useState } from 'react'
-import PlayerHand from './components/PlayerHand';
-import Bidding from './components/Bidding';
-import Card from './components/Card';
-import MiddleStack from './components/MiddleStack';
-import BridgeGameBoard from './components/BridgeGameBoard';
-import End from './components/End';
-import Lobby from './components/Lobby';
+import { useState, useEffect } from 'react'
+import { supabase } from './utils/supabase'
+
+import RoomManger from './components/RoomManager';
 import LoadingScreen from './components/LoadingScreen';
 import LandingPage from './components/LandingPage';
+import HomePage from './components/HomePage';
+import Profile from './components/Profile';
 
 function App() {
   
@@ -166,7 +164,8 @@ function App() {
     //<BridgeGameBoard gameState={mockGameState} localUser={localUser}></BridgeGameBoard>
     //<Lobby localUser={mockLocalUser} toggleReady={mockReady} roundsInMatch={5} roomCode={mockGameState?.roomCode ?? "DFLT"} players={mockPlayers} />
     //<LoadingScreen></LoadingScreen>
-    <LandingPage></LandingPage>
+    //<LandingPage></LandingPage>
+    <HomePage></HomePage>
   );
 }
 

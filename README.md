@@ -3,7 +3,7 @@ A playing card game
 
 Bridge is played with four players, split into pairs. The team members are usually sat across from each other.
 
-There are x phases in Bridge:
+There are 3 phases in Bridge:
 
 Phase 1: Dealing Cards & Bidding
 - Players are delt 5 cards each

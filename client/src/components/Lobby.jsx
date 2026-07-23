@@ -22,7 +22,7 @@ export default function Lobby({players, roomCode, roundsInMatch, onRoundsChange,
     }
     
     return (
-        <div className="w-screen h-screen bg-board-bg">
+        <div className="w-screen h-screen bg-board-bg select-none">
             <div className="flex flex-col items-center p-8 md:p-12">
                 <div className="text-center">
                     <h1 className="text-white text-5xl md:text-[70px] mb-4 font-bold">Lobby</h1>
