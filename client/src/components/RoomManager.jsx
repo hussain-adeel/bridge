@@ -4,11 +4,9 @@ import BridgeGameBoard from "./BridgeGameBoard";
 import Lobby from "./Lobby"
 import { useParams } from "react-router-dom";
 
-const { roomCode } = useParams();
-
 export default function RoomManager({gameState, localUser}) {
     const safeGamePhase = gameState?.gamePhase ?? "Loading"
-
+    const { roomCode } = useParams();
 
     if (!gameState || safeGamePhase === "Loading") return <LoadingScreen />;
     else if (safeGamePhase === "Lobby") 

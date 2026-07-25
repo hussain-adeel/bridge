@@ -20,11 +20,11 @@ export default function HomePage({onJoinRoom, onCreateRoom}) {
                 alt="Bridge Logo"
                 className="w-md"
             />
-            <div className="w-fit h-fit overflow-y-auto">
+            <div className="w-full max-w-md flex flex-col gap-4 overflow-y-auto">
                 {activeView === "menu" && (
                     <div className="p-3 flex flex-col items-center gap-3 text-white font-bold">
                         <button
-                            className="w-50 md:w-md select-none touch-manipulation active:opacity-95 cursor-pointer p-3 bg-neutral-950 hover:bg-black rounded font-medium transition"
+                            className="w-full select-none touch-manipulation active:opacity-95 cursor-pointer p-3 bg-neutral-950 hover:bg-black rounded font-medium transition"
                             onClick={() => setActiveView("join")}
                         >
                             <span>Join Room</span>

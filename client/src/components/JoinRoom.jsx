@@ -2,10 +2,33 @@ import { useState } from "react"
 
 export default function JoinRoom({onJoinRoom}) {
     const [roomCode, setRoomCode] = useState("");
+    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+        setLoading(true);
+
+        try {
+            const success = await onJoinRoom(roomCode);
+
+            if (!success) {
+                setError("Invalid room code or game is full.")
+            }
+        }
+        catch (err) {
+            setError(err.message || "Failed to join room.");
+        }
+        finally {
+            setLoading(false);
+        }
+    }
 
     return (
         <div className='flex flex-col gap-3 w-fit items-center'>
+            <h1 className="text-text-main font-bold text-5xl mb-3 md:mb-6">Join Room</h1>
+            {error && <p className="text-red-500 text-sm text-center font-mono">{error}</p>}
             <form onSubmit={onJoinRoom} className="flex flex-col gap-3 items-center">
                 <input 
                     type="text" 
