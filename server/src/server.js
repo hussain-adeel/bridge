@@ -1,8 +1,14 @@
-require("dotenv").config();
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const cors = require('cors');
+import dotenv from "dotenv";
+import express from "express";
+import http from "http";
+import { Server } from "socket.io";
+import cors from "cors";
+import { createClient } from "@supabase/supabase-js";
+import setupSockets from "./socket/index.js";
+
+dotenv.config();
+
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 const app = express();
 
@@ -18,7 +24,19 @@ const io = new Server(server, {
     }
 });
 
-const setupSockets = require("./socket/index");
+io.use(async (socket, next) => {
+  const token = socket.handshake.auth?.token;
+
+  if (!token) return next(new Error("[Bridge Auth] No token provided"));
+
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+
+  if (error || !user) return next(new Error("[Bridge Auth] Invalid token"));
+
+  socket.user = user;
+  next();
+});
+
 setupSockets(io);
 
 app.get("/health", (req, res) => {
