@@ -5,13 +5,15 @@ import JoinRoom from './JoinRoom';
 import GameRules from './GameRules';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useRoom } from '../hooks/useRoom';
 
 
-export default function HomePage({onJoinRoom, onCreateRoom}) {
+export default function HomePage({onJoinRoom}) {
     const [activeView, setActiveView] = useState("menu");
     const [loading, setLoading] = useState(false);
     const [username, setUsername] = useState(null);
     const { user } = useAuth();
+    const { onCreateRoom } = useRoom();
 
     useEffect(() => {
         async function fetchMyUsername() {
@@ -51,6 +53,7 @@ export default function HomePage({onJoinRoom, onCreateRoom}) {
                         </button>
                         <button
                             className="select-none touch-manipulation active:opacity-95 cursor-pointer w-full p-3 bg-neutral-950 hover:bg-black rounded font-medium transition"
+                            onClick={onCreateRoom}
                         >
                             <span>Create Room</span>
                         </button>
