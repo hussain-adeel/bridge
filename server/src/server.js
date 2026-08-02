@@ -1,14 +1,11 @@
-import dotenv from "dotenv";
+import "dotenv/config";
 import express from "express";
 import http from "http";
-import { Server } from "socket.io";
 import cors from "cors";
+import { Server } from "socket.io";
 import { createClient } from "@supabase/supabase-js";
-import setupSockets from "./socket/index.js";
-
-dotenv.config();
-
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+import { setupSockets } from "./socket/index.js";
+import { supabase } from "./utils/supabase.js"
 
 const app = express();
 
