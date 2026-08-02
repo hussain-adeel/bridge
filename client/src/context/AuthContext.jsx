@@ -24,12 +24,49 @@ export function AuthProvider({children}) {
         return () => subscription.unsubscribe();
     }, []);
 
+    const loginWithDiscord = () => supabase.auth.signInWithOAuth({ provider: 'discord' });
+    const loginWithGithub = () => supabase.auth.signInWithOAuth({ provider: 'github' });
+
+    const sendOtp = async (email) => {
+        setLoading(true);
+        setError("");
+        try {
+            const { error } = await supabase.auth.signInWithOtp({ email });
+            if (error) throw error;
+            return { success: true };
+        } catch (err) {
+            setError(err.message || "Failed to send code.");
+            return { success: false };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const verifyOtp = async (email, token) => {
+        setLoading(true);
+        setError("");
+        try {
+            const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
+            if (error) throw error;
+            return { success: true };
+        } catch (err) {
+            setError("Invalid or expired token... please try again.");
+            return { success: false };
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const signOut = () => supabase.auth.signOut();
 
     const value = {
         user,
-        session,
         loading,
+        error,
+        loginWithDiscord,
+        loginWithGithub,
+        sendOtp,
+        verifyOtp,
         signOut
     };
 
@@ -45,7 +82,7 @@ export const useAuth = () => {
     const context = useContext(AuthContext);
 
     if (context === undefined)
-        throw new Error('invalid usage of useAuth, must be used within AuthCotext')
+        throw new Error('Invalid usage of useAuth... must be used within AuthCotext')
 
     return context;
 };

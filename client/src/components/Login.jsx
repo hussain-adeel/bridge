@@ -1,50 +1,15 @@
 import { useState } from 'react';
 import { supabase } from '../utils/supabase';
+import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [token, setToken] = useState("");
     const [step, setStep] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+
+    const { loginWithDiscord, loginWithGithub, sendOtp, verifyOtp, loading, error } = useAuth();
 
     const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-    const loginWithDiscord = () => supabase.auth.signInWithOAuth({ provider: 'discord' });
-    const loginWithGithub = () => supabase.auth.signInWithOAuth({ provider: 'github' });
-
-    const handleSendCode = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError("");
-
-        try {
-            const { error } = await supabase.auth.signInWithOtp({ email });
-            if (error) throw error;
-            
-            setStep(2);
-        } catch (err) {
-            setError(err.message || "Failed to send code.");
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    const handleVerifyCode = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError("");
-
-        try {
-            const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
-            if (error) throw error;
-            
-        } catch (err) {
-            setError("Invalid or expired token... please try again.");
-        } finally {
-            setLoading(false);
-        }
-    }
 
     return (
         <div className="md:w-100 md:h-full p-6 bg-neutral-800 rounded-xl shadow-lg border border-neutral-700">
@@ -65,7 +30,7 @@ export default function Login() {
 
                 <div className="w-full select-auto">
                     {step === 1 ? (
-                        <form onSubmit={handleSendCode} className="flex flex-col gap-1">
+                        <form onSubmit={() => sendOtp(email)} className="flex flex-col gap-1">
                             <input 
                                 type="email" 
                                 name="email"
@@ -80,7 +45,7 @@ export default function Login() {
                             </button>
                         </form>
                     ) : (
-                        <form onSubmit={handleVerifyCode} className="flex flex-col gap-1">
+                        <form onSubmit={() => verifyOtp(email, token)} className="flex flex-col gap-1">
                             <p className="text-sm font-normal text-neutral-300 text-center mb-2">Code sent to {email}</p>
                             <input 
                                 type="text"
