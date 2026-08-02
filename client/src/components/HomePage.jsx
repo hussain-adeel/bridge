@@ -3,7 +3,6 @@ import { supabase } from '../utils/supabase';
 import bridge_logo from '../assets/bridge_logo.svg'
 import JoinRoom from './JoinRoom';
 import GameRules from './GameRules';
-import ProfileStats from './ProfileStats';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
