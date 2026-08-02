@@ -1,16 +1,37 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../utils/supabase';
 import bridge_logo from '../assets/bridge_logo.svg'
 import JoinRoom from './JoinRoom';
 import GameRules from './GameRules';
 import ProfileStats from './ProfileStats';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 
 export default function HomePage({onJoinRoom, onCreateRoom}) {
     const [activeView, setActiveView] = useState("menu");
     const [loading, setLoading] = useState(false);
-    const [roomCode, setRoomCode] = useState("");
+    const [username, setUsername] = useState(null);
+    const { user } = useAuth();
 
+    useEffect(() => {
+        async function fetchMyUsername() {
+            if (!user?.id) return;
+
+            const { data, error } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('id', user.id)
+            .single();
+
+            if (data) setUsername(data.username);
+
+        }
+
+        fetchMyUsername();
+    }, [user]);
+
+    const navigate = useNavigate();
     const onMenu = () => {setActiveView("menu")}
 
     return (
@@ -36,15 +57,15 @@ export default function HomePage({onJoinRoom, onCreateRoom}) {
                         </button>
                         <button
                             className="select-none touch-manipulation active:opacity-95 cursor-pointer w-full p-3 bg-neutral-950 hover:bg-black rounded font-medium transition"
-                            onClick={() => setActiveView("stats")}
+                            onClick={() => navigate(`/profile/${username}`)}
                         >
-                            <span>View Statistics</span>
+                            <span>Profile</span>
                         </button>
                         <button
                             className="select-none touch-manipulation active:opacity-95 cursor-pointer w-full p-3 bg-neutral-950 hover:bg-black rounded font-medium transition"
                             onClick={() => setActiveView("rules")}
                         >
-                            <span>View Game Rules</span>
+                            <span>Game Rules</span>
                         </button>
                         <button
                             className="select-none touch-manipulation active:opacity-95 cursor-pointer w-full p-3 bg-neutral-950 hover:bg-black rounded font-medium transition"
@@ -59,9 +80,6 @@ export default function HomePage({onJoinRoom, onCreateRoom}) {
                 )}
                 {activeView === "rules" && (
                     <GameRules></GameRules>
-                )}
-                {activeView == "stats" && (
-                    <ProfileStats></ProfileStats>
                 )}
             </div>
             <div>

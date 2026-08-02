@@ -6,6 +6,7 @@ import RoomManger from './components/RoomManager';
 import LoadingScreen from './components/LoadingScreen';
 import LandingPage from './components/LandingPage';
 import HomePage from './components/HomePage';
+import Profile from './components/Profile';
 //import Profile from './components/Profile';
 
 function ProtectedRoute({children}) {
@@ -24,6 +25,11 @@ function App() {
         <Route
           path="/"
           element={<LandingPage></LandingPage>}
+        />
+
+        <Route
+          path="/profile/:username"
+          element={<Profile />}
         />
 
         <Route
