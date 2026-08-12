@@ -19,3 +19,13 @@ export const socket = io(URL, {
 socket.on("connect_error", (err) => {
     console.error("Socket Connection Failed:", err.message);
 });
+
+// Utility Function(s)
+export function emitAsync(eventName, data) {
+    return new Promise((resolve, reject) => {
+        socket.emit(eventName, data, (response) => {
+            if (response?.success) resolve(response); 
+            else reject(new Error(response?.error || "Unknown socket error"));
+        });
+    });
+}

@@ -1,21 +1,21 @@
-import { socket } from "../utils/socket";
+import { socket, emitAsync } from "../utils/socket";
 import { useNavigate } from "react-router-dom";
 
 export function useRoom() {
     const navigate = useNavigate();
 
-    const onCreateRoom = () => {
-        socket.emit("createRoom", {}, (response) => {
-            if (response.success) navigate(`/room/${response.roomCode}`);
-            else console.error("Error:", response.error);
-        });
+    const onCreateRoom = async () => {
+        const response = await emitAsync("createRoom", {});
+
+        navigate(`/room/${response.roomCode}`);
+        return true;
     };
 
-    const onJoinRoom = (roomCode) => {
-        socket.emit("joinRoom", { roomCode }, (response) => {
-            if (response.success) navigate(`/room/${response.roomCode}`);
-            else console.error("Error:", response.error);
-        });
+    const onJoinRoom = async (roomCode) => {
+        const response = await emitAsync("joinRoom", {roomCode});
+
+        navigate(`/room/${response.roomCode}`);
+        return true;
     };
 
     return {
