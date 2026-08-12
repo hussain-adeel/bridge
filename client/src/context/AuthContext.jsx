@@ -6,20 +6,23 @@ const AuthContext = createContext();
 export function AuthProvider({children}) {
     const [user, setUser] = useState(null);
     const [session, setSession] = useState(null);
-    const [loading, setLoading] = useState(true);
+    
+    const [initialLoading, setInitialLoading] = useState(true); 
+    
+    const [loading, setLoading] = useState(false); 
     const [error, setError] = useState("");
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
             setSession(session);
             setUser(session?.user ?? null);
-            setLoading(false);
+            setInitialLoading(false);
         });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
             setUser(session?.user ?? null);
-            setLoading(false);
+            setInitialLoading(false);
         });
 
         return () => subscription.unsubscribe();
@@ -73,17 +76,16 @@ export function AuthProvider({children}) {
 
     return (
         <AuthContext.Provider value={value}>
-            {!loading && children}
+            {!initialLoading && children}
         </AuthContext.Provider>
     );
-
 }
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
 
     if (context === undefined)
-        throw new Error('Invalid usage of useAuth... must be used within AuthCotext')
+        throw new Error('Invalid usage of useAuth... must be used within AuthContext')
 
     return context;
 };
