@@ -128,7 +128,7 @@ export default function Login() {
                     <form onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-3 w-full items-center">
                         <p className="text-sm font-normal text-neutral-300 text-center mb-2">Code sent to <span className="font-semibold text-white">{email}</span></p>
                         
-                        <div className="flex gap-1 md:gap-2 justify-center w-full mb-2">
+                        <div className="flex gap-1 md:gap-1 justify-center w-full mb-2">
                             {otp.map((digit, index) => (
                                 <input
                                     key={index}
