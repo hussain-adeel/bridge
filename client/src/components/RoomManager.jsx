@@ -2,21 +2,32 @@ import LoadingScreen from "./LoadingScreen";
 import BridgeGameBoard from "./BridgeGameBoard";
 import Lobby from "./Lobby";
 import { ROOM_STATUSES } from "../../../shared/gameConstants.js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useRoomGameState } from "../hooks/useRoomGameState.js";
+import { useGameActions } from "../hooks/useGameActions.js";
 
-export default function RoomManager({
-    roomState,
-    gameState,
-    roomError = null,
-}) {
+export default function RoomManager() {
+    const { code: roomCode } = useParams()
+
+    const {
+        onToggleReady,
+        onRoundsChange,
+        onStartMatch,
+        onBid,
+        onPass,
+        onPlayCard,
+        onReturnToLobby
+    } = useGameActions(roomCode);
+
+    const {
+        roomState,
+        gameState,
+        loading,
+        roomError
+    } = useRoomGameState(roomCode);
+
     const navigate = useNavigate();
-    const onRoundsChange = (roundsToWin) => console.log("Match rounds changed:", roundsToWin);
-    const onToggleReady = () => console.log("Ready toggled");
-    const onStartMatch = () => console.log("Match started");
-    const onBid = (bid) => console.log("Bid placed:", bid);
-    const onPass = () => console.log("Passed");
-    const onPlayCard = (cardId) => console.log("Card played:", cardId);
-    const onReturnToLobby = () => console.log("Return to lobby");
+
     const errorMessage = roomError instanceof Error ? roomError.message : roomError;
 
     const returnHome = () => {
@@ -41,6 +52,8 @@ export default function RoomManager({
             </div>
         );
     }
+
+    if (loading) return <LoadingScreen />;
 
     if (!roomState) return <LoadingScreen />;
 

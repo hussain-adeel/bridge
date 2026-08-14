@@ -2,14 +2,14 @@ import { emitAsync, SOCKET_EVENTS } from "../utils/socket";
 
 export function useGameActions(roomCode) {
 
-    const onReady = async () => {
+    const onToggleReady = async () => {
         await emitAsync(
             SOCKET_EVENTS.READY, 
             { roomCode }
         );
     };
 
-    const onChangeRounds = async (roundsToWin) => {
+    const onRoundsChange = async (roundsToWin) => {
         await emitAsync(
             SOCKET_EVENTS.CHANGE_ROUNDS, 
             { roomCode, roundsToWin }
@@ -52,8 +52,8 @@ export function useGameActions(roomCode) {
     };
 
     return {
-        onReady,
-        onChangeRounds,
+        onToggleReady,
+        onRoundsChange,
         onStartMatch,
         onBid,
         onPass,
