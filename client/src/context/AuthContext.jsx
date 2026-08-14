@@ -1,12 +1,9 @@
-import { useState, useEffect, useContext, createContext } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../utils/supabase";
-
-const AuthContext = createContext();
+import { AuthContext } from "./authContext";
 
 export function AuthProvider({children}) {
     const [user, setUser] = useState(null);
-    const [session, setSession] = useState(null);
-    
     const [initialLoading, setInitialLoading] = useState(true); 
     
     const [loading, setLoading] = useState(false); 
@@ -14,13 +11,11 @@ export function AuthProvider({children}) {
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
             setUser(session?.user ?? null);
             setInitialLoading(false);
         });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
             setUser(session?.user ?? null);
             setInitialLoading(false);
         });
@@ -53,7 +48,7 @@ export function AuthProvider({children}) {
             const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
             if (error) throw error;
             return { success: true };
-        } catch (err) {
+        } catch {
             setError("Invalid or expired token... please try again.");
             return { success: false };
         } finally {
@@ -80,12 +75,3 @@ export function AuthProvider({children}) {
         </AuthContext.Provider>
     );
 }
-
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-
-    if (context === undefined)
-        throw new Error('Invalid usage of useAuth... must be used within AuthContext')
-
-    return context;
-};

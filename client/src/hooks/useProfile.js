@@ -4,8 +4,8 @@ import { supabase } from "../utils/supabase";
 export function useProfile(routeUsername) {
     const [profile, setProfile] = useState(null);
     const [matchHistory, setMatchHistory] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [notFound, setNotFound] = useState(false);
+    const [loading, setLoading] = useState(() => Boolean(routeUsername));
+    const [notFound, setNotFound] = useState(() => !routeUsername);
 
     const [newUsername, setNewUsername] = useState("");
     const [updateStatus, setUpdateStatus] = useState("idle");
@@ -55,10 +55,6 @@ export function useProfile(routeUsername) {
         }
 
         if (routeUsername) fetchProfileData();
-        else {
-            setLoading(false);
-            setNotFound(true);
-        }
     }, [routeUsername]);
 
     const handleSaveUsername = async () => {
