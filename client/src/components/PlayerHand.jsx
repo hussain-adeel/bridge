@@ -26,7 +26,9 @@ export default function PlayerHand({ cards, leadSuit, onPlayCard = () => {}, gam
 
     const handlePlay = () => {
         if (selectedCard === null) return;
-        onPlayCard(sortedCards[selectedCard]);
+        const selectedCardId = sortedCards[selectedCard]?.id;
+        if (!selectedCardId) return;
+        onPlayCard(selectedCardId);
         setSelectedCard(null);
     };
 
