@@ -36,8 +36,8 @@ export default function Bidding({currSuit, currTricks, gamePhase, auctionNumber,
                     <div key={suit} className="flex flex-col gap-2">
                         <span className="cursor-default">{suit}</span>
                         {BID_VALUES.map((rank) => {
-                            const isDisabled = !safeIsMyTurn || rank <= currTricks
-                            const isCurrentBid = rank === currTricks && suit === currSuit;
+                            const isDisabled = !safeIsMyTurn || rank <= safeCurrTricks;
+                            const isCurrentBid = rank === safeCurrTricks && suit === safeCurrSuit;
                             const isUserSelected = stagedBid?.suit === suit && stagedBid?.rank === rank;
                             
                             return (
@@ -76,7 +76,7 @@ export default function Bidding({currSuit, currTricks, gamePhase, auctionNumber,
                     {confirmPass ? "Confrim Pass?" : "Pass"}
                 </button>
                 <button 
-                    onClick={() => onBid()}
+                    onClick={() => onBid(stagedBid)}
                     className="py-1.5 rounded font-bold transition-all duration-200 bg-slate-700 hover:bg-slate-600 disabled:hover:bg-slate-700 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                     disabled={stagedBid === null}
                 >

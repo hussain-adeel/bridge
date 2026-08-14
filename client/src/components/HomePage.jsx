@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { supabase } from '../utils/supabase';
 import bridge_logo from '../assets/bridge_logo.svg'
 import JoinRoom from './JoinRoom';
 import GameRules from './GameRules';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { useRoom } from '../hooks/useRoom';
 import { useUsername } from '../hooks/useUsername';
 
@@ -49,6 +48,7 @@ return (
                         Welcome, <span className="text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-cyan-400">{username}</span>!
                     </h1>
                 )}
+                {error && <p className="mb-4 text-red-400 font-medium">{error}</p>}
                 
                 <div className="w-full flex flex-col gap-4 overflow-y-auto no-scrollbar">
                     {activeView === "menu" && (

@@ -12,11 +12,11 @@ export default function BridgeGameHeader({ gamePhase, isMyTeamBid, tricksCalled,
         ? "opacity-0 pointer-events-none"
         : "opacity-100";
 
-    const handsNeededToWin = safeIsMyTeamBid
+    const tricksNeededToWin = safeIsMyTeamBid
         ? safeTricksCalled
         : TRICKS_PER_ROUND + 1 - safeTricksCalled;
-    const handsLeft = handsNeededToWin - safeTeamScore;
-    const scoreText = `${handsLeft} Tricks to Win`;
+    const tricksLeft = tricksNeededToWin - safeTeamScore;
+    const scoreText = `${tricksLeft} Tricks to Win`;
 
     const bidCallText = () => {
         if (safeTricksCalled === 0) return "No bid yet";

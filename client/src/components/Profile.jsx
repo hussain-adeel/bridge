@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "../utils/supabase";
-import { useAuth } from "../context/AuthContext"; 
+import { useAuth } from "../hooks/useAuth";
 import LoadingScreen from "./LoadingScreen";
 import { useProfile } from "../hooks/useProfile";
 import { TEAM_IDS } from "../../../shared/gameConstants.js";
