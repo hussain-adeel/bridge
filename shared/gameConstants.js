@@ -28,6 +28,7 @@ export const SOCKET_EVENTS = {
     RECONNECT_TO_ROOM: "reconnectToRoom",
 
     ROOM_STATE_UPDATED: "roomStateUpdated",
+    GET_ROOM_STATE: "getRoomState"
 };
 
 export const AUCTION_NUMBERS = {
