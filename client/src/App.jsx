@@ -21,23 +21,38 @@ function ProtectedRoute({children}) {
 
 function AppRoutes() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
+    if (!user) return undefined;
+
     const savedSession = localStorage.getItem('bridge_session');
+    let isCurrent = true;
     
     if (savedSession) {
-        const { roomCode, userId } = JSON.parse(savedSession);
-        
-        socket.emit(SOCKET_EVENTS.RECONNECT_TO_ROOM, { roomCode, userId }, (response) => {
-            if (response.success) {
-              navigate(`/room/${roomCode}`, { 
-                  state: { recoveredGameState: response.gameState } 
-              });
-            } 
-            else localStorage.removeItem('bridge_session');
-        });
+        try {
+          const { roomCode } = JSON.parse(savedSession);
+
+          if (roomCode) {
+            socket.emit(SOCKET_EVENTS.RECONNECT_TO_ROOM, { roomCode }, (response) => {
+              if (!isCurrent) return;
+
+              if (response.success) {
+                navigate(`/room/${roomCode}`);
+              } else {
+                localStorage.removeItem('bridge_session');
+              }
+            });
+          }
+        } catch {
+          localStorage.removeItem('bridge_session');
+        }
     }
-  }, [navigate]);
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [navigate, user]);
 
   return (
       <Routes>
