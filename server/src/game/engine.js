@@ -40,6 +40,10 @@ export function createInitialGameState() {
         matchScore: {
             [TEAM_IDS.ONE]: 0,
             [TEAM_IDS.TWO]: 0
-        }
+        },
+
+        roundWinnerTeamId: null,
+        matchWinnerTeamId: null,
+        roundEndsAt: null
     };
 }

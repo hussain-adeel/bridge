@@ -15,7 +15,19 @@ export const ROOM_STATUSES = {
 export const SOCKET_EVENTS = {
     CREATE_ROOM: "createRoom",
     JOIN_ROOM: "joinRoom",
+    READY: "ready",
+    CHANGE_ROUNDS: "changeRounds",
+    START_MATCH: "startMatch",
+    LEAVE_ROOM: "leaveRoom",
+
+    BID: "bid",
+    BID_PASS: "bidPass",
+    PLAY_CARD: "playCard",
+
+    RETURN_TO_LOBBY: "returnToLobby",
     RECONNECT_TO_ROOM: "reconnectToRoom",
+
+    ROOM_STATE_UPDATED: "roomStateUpdated",
 };
 
 export const AUCTION_NUMBERS = {
