@@ -29,7 +29,11 @@ export function useRoomGameState(roomCode) {
     }, [roomCode]);
 
     useEffect(() => {
-        loadState();
+        const frame = requestAnimationFrame(() => {
+            loadState();
+        });
+        
+        return () => cancelAnimationFrame(frame);
     }, [loadState]);
 
     useSocketEvent(SOCKET_EVENTS.ROOM_STATE_UPDATED, ({ roomState, gameState }) => {
