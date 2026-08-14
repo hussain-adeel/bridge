@@ -33,7 +33,7 @@ export function AuthProvider({children}) {
         socket.connect();
 
         return () => socket.disconnect();
-    }, [user?.id]);
+    }, [user]);
 
     const loginWithDiscord = () => supabase.auth.signInWithOAuth({ provider: 'discord' });
     const loginWithGithub = () => supabase.auth.signInWithOAuth({ provider: 'github' });
