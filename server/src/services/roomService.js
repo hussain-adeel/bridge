@@ -2,6 +2,7 @@ import { generateRoomCode } from "../utils/helpers.js";
 import { roomExists, saveRoom, getRoom } from "../game/state.js";
 import { createInitialGameState } from "../game/engine.js";
 import { DEFAULT_ROUNDS_TO_WIN, MAX_PLAYERS, ROOM_STATUSES, TEAM_IDS } from "../../../shared/gameConstants.js";
+import { getPlayerGameState } from "./gameService.js";
 
 export function createRoom({userId, username, socketId}) {
     const roomCode = generateRoomCode();
@@ -60,6 +61,30 @@ export function joinRoom({userId, username, socketId, roomCode}) {
     saveRoom(normalizedRoomCode, room);
     
     return {success: true, roomCode: normalizedRoomCode};
+}
+
+export function getRoomGameState({userId, roomCode}) {
+    const normalizedRoomCode = roomCode?.trim().toUpperCase();
+    if (!normalizedRoomCode || !roomExists(normalizedRoomCode)) return {success: false, error: "Room does not exist."};
+
+    const room = getRoom(normalizedRoomCode);
+    
+    const existingPlayer = room.roomState.players.find((player) => player.id === userId);
+
+    if (!existingPlayer) return {success: false, error: "You are not connected to this room."};
+
+    const playerGameState = getPlayerGameState(room.gameState, userId);
+    const publicRoomState = {
+        ...room.roomState,
+        players: room.roomState.players.map(({ socketId, ...player }) => player),
+    };
+
+    return {
+        success: true,
+        roomState: publicRoomState,
+        gameState: playerGameState
+    }
+
 }
 
 export function disconnectPlayer({socketId}) {

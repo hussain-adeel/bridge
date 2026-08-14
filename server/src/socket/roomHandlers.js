@@ -1,4 +1,4 @@
-import { createRoom, joinRoom } from "../services/roomService.js";
+import { createRoom, joinRoom, getRoomGameState } from "../services/roomService.js";
 import { supabase } from "../utils/supabase.js";
 import { SOCKET_EVENTS } from "../../../shared/gameConstants.js";
 
@@ -23,7 +23,8 @@ export function registerRoomHandlers(io, socket) {
                     roomCode: room.roomCode
                 });
             }
-        } catch (err) {
+        } 
+        catch (err) {
             console.error("Error creating room:", err);
             if (typeof callback === "function") {
                 callback({ success: false, error: err.message });
@@ -57,11 +58,37 @@ export function registerRoomHandlers(io, socket) {
                 });
             }
             
-        } catch (err) {
+        } 
+        catch (err) {
             console.error("Error joining room:", err);
             if (typeof callback === "function") {
                 callback({ success: false, error: err.message });
             }
         }
-    })
+    });
+
+    socket.on(SOCKET_EVENTS.GET_ROOM_STATE, async ({ roomCode }, callback) => {
+        try {
+            const response = getRoomGameState({userId: socket.user.id, roomCode});
+
+            if (!response.success) {
+                if (typeof callback === "function") callback(response);
+                return;
+            }
+
+            if (typeof callback === "function") {
+                callback({ 
+                    success: true, 
+                    roomState: response.roomState,
+                    gameState: response.gameState
+                });
+            }
+        }
+        catch (err) {
+            console.error("Error fetching room state:", err);
+            if (typeof callback === "function") {
+                callback({ success: false, error: err.message });
+            }
+        }
+    });
 }
