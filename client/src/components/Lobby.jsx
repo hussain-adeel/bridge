@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { DEFAULT_ROUNDS_TO_WIN, MATCH_ROUND_OPTIONS } from "../../../shared/gameConstants.js";
+import { DEFAULT_ROUNDS_TO_WIN, MATCH_ROUND_OPTIONS, MAX_PLAYERS } from "../../../shared/gameConstants.js";
 
-export default function Lobby({ players, roomCode, hostId, roundsToWin, onRoundsChange = () => {}, onToggleReady = () => {} }) {
+export default function Lobby({ players, roomCode, hostId, roundsToWin, onRoundsChange = () => {}, onToggleReady = () => {}, onStartMatch = () => {} }) {
     const { user } = useAuth();
     const [copied, setCopied] = useState(false);
     const safePlayers = players ?? [];
@@ -11,6 +11,7 @@ export default function Lobby({ players, roomCode, hostId, roundsToWin, onRounds
     const localPlayer = safePlayers.find((player) => player.id === user?.id);
     const isHost = hostId === user?.id;
     const isReady = localPlayer?.isReady ?? false;
+    const canStartMatch = safePlayers.length === MAX_PLAYERS && safePlayers.every((player) => player.isReady);
 
     const handleCopyCode = async () => {
         await navigator.clipboard.writeText(safeRoomCode);
@@ -77,6 +78,15 @@ export default function Lobby({ players, roomCode, hostId, roundsToWin, onRounds
                 >
                     {isReady ? "Ready" : "Mark Ready"}
                 </button>
+                {isHost && (
+                    <button
+                        className="text-white font-bold border-3 border-amber-400 rounded m-2 p-2 text-center text-xl bg-amber-500/20 hover:bg-amber-500 disabled:bg-slate-800 disabled:border-slate-600 disabled:text-slate-500 disabled:cursor-not-allowed"
+                        onClick={onStartMatch}
+                        disabled={!canStartMatch}
+                    >
+                        Start Match
+                    </button>
+                )}
             </div>
         </div>
     );
