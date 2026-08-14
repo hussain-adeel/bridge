@@ -83,7 +83,7 @@ export default function Login() {
     return (
         <div className="w-full z-20 relative bg-neutral-800 p-6 rounded-xl shadow-lg border border-neutral-700 flex flex-col gap-1">
             <div className="mb-4 text-center select-none w-full">
-                <h1 className="text-2xl font-extrabold text-text-main text-yellow-500">Login</h1>
+                <h1 className="text-2xl font-extrabold text-text-main">Login</h1>
                 <div className="h-5 mt-1">
                     {error && <h2 className="font-medium font-mono text-red-500 text-sm">{error}</h2>}
                 </div>
