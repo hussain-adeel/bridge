@@ -23,7 +23,7 @@ export function useGameActions(roomCode) {
         );
     };
 
-    const onBid = async (rank, suit) => {
+    const onBid = async ({rank, suit}) => {
         await emitAsync(
             SOCKET_EVENTS.BID,
             { roomCode, rank, suit }
@@ -50,8 +50,6 @@ export function useGameActions(roomCode) {
             { roomCode }
         );
     };
-
-
 
     return {
         onReady,
