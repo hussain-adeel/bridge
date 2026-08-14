@@ -67,6 +67,7 @@ export default function RoomManager() {
                 onRoundsChange={onRoundsChange}
                 onToggleReady={onToggleReady}
                 onStartMatch={onStartMatch}
+                onReturnHome={returnHome}
             />
         );
     }
