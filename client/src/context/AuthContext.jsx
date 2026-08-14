@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../utils/supabase";
 import { AuthContext } from "./authContext";
+import { socket } from "../utils/socket";
 
 export function AuthProvider({children}) {
     const [user, setUser] = useState(null);
@@ -22,6 +23,17 @@ export function AuthProvider({children}) {
 
         return () => subscription.unsubscribe();
     }, []);
+
+    useEffect(() => {
+        if (!user) {
+            socket.disconnect();
+            return undefined;
+        }
+
+        socket.connect();
+
+        return () => socket.disconnect();
+    }, [user?.id]);
 
     const loginWithDiscord = () => supabase.auth.signInWithOAuth({ provider: 'discord' });
     const loginWithGithub = () => supabase.auth.signInWithOAuth({ provider: 'github' });

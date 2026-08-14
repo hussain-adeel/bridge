@@ -10,7 +10,7 @@ const getSocketToken = async () => {
 }
 
 export const socket = io(URL, {
-    autoConnect: true,
+    autoConnect: false,
     auth: async (cb) => {
         const token = await getSocketToken();
         cb({ token });
