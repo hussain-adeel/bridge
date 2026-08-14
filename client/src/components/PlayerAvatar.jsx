@@ -1,7 +1,9 @@
+import { GAME_PHASES } from "../../../shared/gameConstants.js";
+
 export default function PlayerAvatar({ player, isTurn, gamePhase }) {
     if (!player) return null;
     const safeIsTurn = isTurn ?? false;
-    const safeGamePhase = gamePhase ?? "LOADING";
+    const safeGamePhase = gamePhase;
 
     return (
         <a 
@@ -34,9 +36,9 @@ export default function PlayerAvatar({ player, isTurn, gamePhase }) {
                 </svg>
             </div>
             
-            {safeGamePhase === "PLAYING" && (
+            {safeGamePhase === GAME_PHASES.PLAYING && (
                 <span className="font-mono font-bold md:mt-1">
-                    {player.tricksWon || 0} HANDS
+                    {player.tricksWon || 0} TRICKS
                 </span>
             )}
         </a>

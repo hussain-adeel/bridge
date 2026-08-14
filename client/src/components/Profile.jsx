@@ -4,6 +4,7 @@ import { supabase } from "../utils/supabase";
 import { useAuth } from "../context/AuthContext"; 
 import LoadingScreen from "./LoadingScreen";
 import { useProfile } from "../hooks/useProfile";
+import { TEAM_IDS } from "../../../shared/gameConstants.js";
 
 export default function Profile() {
     const { username: routeUsername } = useParams();
@@ -57,17 +58,17 @@ export default function Profile() {
         <div className="w-full min-h-screen p-4 md:p-12 flex flex-col items-center bg-board-bg bg-cover bg-center overflow-x-hidden relative">
             <div className="absolute inset-0 bg-black/50 pointer-events-none" />
             
-            <div className="relative z-10 w-full max-w-3xl bg-neutral-900/70 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-6 md:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] flex flex-col gap-8 mt-4 md:mt-10 mb-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <div className="relative z-10 w-full max-w-3xl bg-neutral-900/70 backdrop-blur-2xl border border-white/10 rounded-4xl p-6 md:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] flex flex-col gap-8 mt-4 md:mt-10 mb-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
                 
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-6 relative group">
-                    <div className="w-24 h-24 shrink-0 bg-gradient-to-br from-neutral-800 to-neutral-950 rounded-full flex items-center justify-center text-4xl font-black text-white border border-white/10 select-none shadow-[0_0_30px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform duration-500">
+                    <div className="w-24 h-24 shrink-0 bg-linear-to-br from-neutral-800 to-neutral-950 rounded-full flex items-center justify-center text-4xl font-black text-white border border-white/10 select-none shadow-[0_0_30px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform duration-500">
                         {profile.username.charAt(0).toUpperCase()}
                     </div>
                     
                     <div className="flex flex-col items-center md:items-start w-full">
                         {!isEditing ? (
                             <div className="flex items-center gap-3">
-                                <h1 className="text-3xl md:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-neutral-400 drop-shadow-sm">
+                                <h1 className="text-3xl md:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white to-neutral-400 drop-shadow-sm">
                                     {profile.username}
                                 </h1>
                                 {isOwnProfile && (
@@ -118,7 +119,7 @@ export default function Profile() {
                     </div>
                 </div>
 
-                <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
+                <div className="w-full h-px bg-linear-to-r from-transparent via-white/10 to-transparent my-2" />
 
                 <div className="flex flex-col gap-5">
                     <h2 className="text-xl font-extrabold text-white tracking-wide drop-shadow-sm">Career Statistics</h2>
@@ -174,7 +175,7 @@ export default function Profile() {
                     </div>
                 </div>
 
-                <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-2" />
+                <div className="w-full h-px bg-linear-to-r from-transparent via-white/10 to-transparent my-2" />
 
                 <div className="flex flex-col gap-5">
                     <h2 className="text-xl font-extrabold text-white tracking-wide drop-shadow-sm">Recent Matches</h2>
@@ -189,8 +190,8 @@ export default function Profile() {
                                 const match = entry.matches;
                                 const isWin = entry.team_id === match.winning_team;
                                 
-                                const myScore = entry.team_id === 'team_1' ? match.team_1_score : match.team_2_score;
-                                const oppScore = entry.team_id === 'team_1' ? match.team_2_score : match.team_1_score;
+                                const myScore = entry.team_id === TEAM_IDS.ONE ? match.team_1_score : match.team_2_score;
+                                const oppScore = entry.team_id === TEAM_IDS.ONE ? match.team_2_score : match.team_1_score;
 
                                 return (
                                     <div key={match.id || idx} className="flex justify-between items-center p-4 bg-neutral-950/60 backdrop-blur-md border border-white/5 rounded-2xl shadow-lg hover:bg-neutral-900/80 transition-colors group">
@@ -226,7 +227,7 @@ export default function Profile() {
 
             <button 
                 onClick={() => navigate("/")} 
-                className="relative z-10 w-full max-w-[200px] mb-12 text-neutral-300 select-none touch-manipulation active:scale-95 cursor-pointer p-3 bg-neutral-900/80 backdrop-blur-md border border-neutral-800 hover:border-neutral-500 hover:bg-neutral-800 hover:text-white rounded-xl font-bold tracking-wide shadow-xl transition-all duration-300"
+                className="relative z-10 w-full max-w-50 mb-12 text-neutral-300 select-none touch-manipulation active:scale-95 cursor-pointer p-3 bg-neutral-900/80 backdrop-blur-md border border-neutral-800 hover:border-neutral-500 hover:bg-neutral-800 hover:text-white rounded-xl font-bold tracking-wide shadow-xl transition-all duration-300"
             >
                 Back to Menu
             </button>

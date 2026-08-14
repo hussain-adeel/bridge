@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { GAME_PHASES } from "../../../shared/gameConstants.js";
 import Card from "./Card";
 
 export default function PlayerHand({cards, leadSuit, onPlayCard, gamePhase, isMyTurn, tricksWon}) {
@@ -7,7 +8,7 @@ export default function PlayerHand({cards, leadSuit, onPlayCard, gamePhase, isMy
 
     const safeCards = cards ?? [];
     const safeLeadSuit = leadSuit ?? "";
-    const safeGamePhase = gamePhase ?? "LOADING";
+    const safeGamePhase = gamePhase;
     const safeIsMyTurn = isMyTurn ?? false;
     const safeTricksWon = tricksWon ?? 0;
 
@@ -87,7 +88,7 @@ export default function PlayerHand({cards, leadSuit, onPlayCard, gamePhase, isMy
     }
 
     const isCardPlayable = (card) => {
-        if (!safeIsMyTurn || safeGamePhase !== "PLAYING") return false;
+        if (!safeIsMyTurn || safeGamePhase !== GAME_PHASES.PLAYING) return false;
         const hasLeadSuit = cards.some(card => card.suit ==  safeLeadSuit)
 
         if (hasLeadSuit) {
@@ -104,9 +105,9 @@ export default function PlayerHand({cards, leadSuit, onPlayCard, gamePhase, isMy
     })
 
     const handText = () => {
-        if (safeGamePhase === "PLAYING") {
+        if (safeGamePhase === GAME_PHASES.PLAYING) {
             if (safeIsMyTurn) return "Your turn!"
-            else return `You've made ${safeTricksWon} hands.`;
+            else return `You've made ${safeTricksWon} tricks.`;
         }
         return ""
     }
@@ -152,7 +153,7 @@ export default function PlayerHand({cards, leadSuit, onPlayCard, gamePhase, isMy
                             m-10 px-10 py-3 text-white bg-black rounded-full font-bold select-none
                             hover:text-black hover:bg-amber-50 hover:cursor-pointer
                             disabled:opacity-50 disabled:bg-black disabled:cursor-not-allowed disabled:hover:bg-black disabled:hover:text-white
-                            ${safeGamePhase !== "PLAYING" ? "hidden" : ""}
+                            ${safeGamePhase !== GAME_PHASES.PLAYING ? "hidden" : ""}
                 `}
             >
                 PLAY  

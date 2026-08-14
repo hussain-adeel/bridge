@@ -24,7 +24,11 @@ export default function HomePage() {
         setLoading(true);
         setError("");
 
-        try { await onCreateRoom(); }
+        try { 
+            await onCreateRoom();
+
+            
+        }
         catch (err) { setError(err.message || "Failed to create room."); }
         finally { setLoading(false); }
     }
@@ -42,7 +46,7 @@ return (
                 
                 {username && activeView === "menu" && (
                     <h1 className="text-3xl md:text-4xl font-black text-white/95 mb-8 text-center drop-shadow-xl tracking-tight">
-                        Welcome, <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">{username}</span>!
+                        Welcome, <span className="text-transparent bg-clip-text bg-linear-to-r from-emerald-400 to-cyan-400">{username}</span>!
                     </h1>
                 )}
                 
@@ -76,7 +80,7 @@ return (
                                 <span>Game Rules</span>
                             </button>
                             
-                            <div className="w-full h-[1px] bg-white/10 my-2" />
+                            <div className="w-full h-px bg-white/10 my-2" />
                             
                             <button
                                 className="w-full select-none touch-manipulation active:scale-[0.98] cursor-pointer p-4 bg-red-950/40 hover:bg-red-900/60 border border-red-900/50 hover:border-red-500/50 text-red-100 rounded-2xl font-bold tracking-wide shadow-lg transition-all duration-300"
@@ -103,7 +107,7 @@ return (
                 {activeView !== "menu" && (
                     <button 
                         onClick={onMenu} 
-                        className="w-full max-w-[200px] mt-8 text-neutral-300 select-none touch-manipulation active:scale-95 cursor-pointer p-3 bg-neutral-900/60 backdrop-blur-md border border-neutral-800 hover:border-neutral-500 hover:bg-neutral-800 hover:text-white rounded-xl font-medium shadow-xl transition-all duration-300"
+                        className="w-full max-w-50 mt-8 text-neutral-300 select-none touch-manipulation active:scale-95 cursor-pointer p-3 bg-neutral-900/60 backdrop-blur-md border border-neutral-800 hover:border-neutral-500 hover:bg-neutral-800 hover:text-white rounded-xl font-medium shadow-xl transition-all duration-300"
                     >
                         Back to Menu
                     </button>

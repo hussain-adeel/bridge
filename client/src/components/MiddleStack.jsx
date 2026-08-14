@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import Card from "./Card";
+import { MAX_PLAYERS } from "../../../shared/gameConstants.js";
 
 export default function MiddleStack({cardsOnTable, myIndex}) {
 
@@ -11,7 +12,7 @@ export default function MiddleStack({cardsOnTable, myIndex}) {
         const safeCardsOnTable = cardsOnTable ?? [];
 
         safeCardsOnTable.forEach(card => {
-            const offset = (card.playerIndex - myIndex + 4 ) % 4;
+            const offset = (card.playerIndex - myIndex + MAX_PLAYERS) % MAX_PLAYERS;
             if (offset == 0) positions.bottom = card;
             if (offset == 1) positions.left = card;
             if (offset == 2) positions.top = card;

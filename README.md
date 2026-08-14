@@ -32,9 +32,9 @@ This application implements a highly modified, faster-paced version of standard 
 
 ### Phase 1: The Deal & The Auction
 *   **The First Deal:** Each player is dealt an initial 5 cards.
-*   **The Opening Auction:** A random player opens. Bids must declare a trump suit and a target number of hands (minimum opening bid is **6 hands**). Play proceeds clockwise.
+*   **The Opening Auction:** A random player opens. Bids must declare a trump suit and a target number of tricks (minimum opening bid is **6 tricks**). Play proceeds clockwise.
 *   **The Second Deal:** Players receive 4 additional cards (9 total).
-*   **The Second Auction:** Initiated by the player holding the highest bid from the first round.
+*   **The Second Auction:** Initiated by the player holding the highest bid from the first auction.
 *   **The Final Deal:** The highest bid becomes the official contract. The winner is the **Declarer**. The final 4 cards are dealt, completing the 13-card hands.
 
 ### Phase 2: The Play
@@ -44,8 +44,8 @@ This application implements a highly modified, faster-paced version of standard 
 *   **Winning the Trick:** The highest trump card wins. If no trump is played, the highest card of the lead suit wins.
 
 ### Phase 3: Sudden-Death Resolution
-*   **Declarer Victory:** The game ends immediately the moment the Declarer's team secures enough hands to meet their bid.
-*   **Defender Victory:** The game ends immediately the moment the Defenders win enough hands to make the Declarer's bid mathematically impossible.
+*   **Declarer Victory:** The game ends immediately the moment the Declarer's team secures enough tricks to meet their bid.
+*   **Defender Victory:** The game ends immediately the moment the Defenders win enough tricks to make the Declarer's bid mathematically impossible.
 
 ---
 

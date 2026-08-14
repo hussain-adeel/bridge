@@ -1,5 +1,6 @@
 import { io } from "socket.io-client";
 import { supabase } from "./supabase";
+import { SOCKET_EVENTS } from "../../../shared/gameConstants.js";
 
 const URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3001";
 
@@ -29,3 +30,5 @@ export function emitAsync(eventName, data) {
         });
     });
 }
+
+export { SOCKET_EVENTS };

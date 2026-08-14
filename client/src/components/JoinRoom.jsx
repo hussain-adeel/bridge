@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { useRoom } from "../hooks/useRoom";
+import { ROOM_CODE_LENGTH } from "../../../shared/gameConstants.js";
 
 export default function JoinRoom() {
-    const [code, setCode] = useState(new Array(4).fill(""));
+    const [code, setCode] = useState(new Array(ROOM_CODE_LENGTH).fill(""));
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const inputRefs = useRef([]);
@@ -10,7 +11,7 @@ export default function JoinRoom() {
     const { onJoinRoom } = useRoom();
 
     const submitRoom = async (fullCode) => {
-        if (fullCode.length !== 4) return;
+        if (fullCode.length !== ROOM_CODE_LENGTH) return;
         
         setError("");
         setLoading(true);
@@ -32,12 +33,12 @@ export default function JoinRoom() {
         newCode[index] = value.substring(value.length - 1);
         setCode(newCode);
 
-        if (value && index < 3) {
+        if (value && index < ROOM_CODE_LENGTH - 1) {
             inputRefs.current[index + 1].focus();
         }
 
         const fullCode = newCode.join("");
-        if (fullCode.length === 4) {
+        if (fullCode.length === ROOM_CODE_LENGTH) {
             submitRoom(fullCode);
         }
     };
@@ -46,14 +47,14 @@ export default function JoinRoom() {
         if (e.key === "Backspace" && !code[index] && index > 0) {
             inputRefs.current[index - 1].focus();
         }
-        if (e.key === "Enter" && code.join("").length === 4) {
+        if (e.key === "Enter" && code.join("").length === ROOM_CODE_LENGTH) {
             submitRoom(code.join(""));
         }
     };
 
     const handlePaste = (e) => {
         e.preventDefault();
-        const pasteData = e.clipboardData.getData("text").replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 4);
+        const pasteData = e.clipboardData.getData("text").replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, ROOM_CODE_LENGTH);
         
         if (pasteData) {
             const newCode = [...code];
@@ -62,8 +63,8 @@ export default function JoinRoom() {
             }
             setCode(newCode);
             
-            if (pasteData.length === 4) {
-                inputRefs.current[3].focus();
+            if (pasteData.length === ROOM_CODE_LENGTH) {
+                inputRefs.current[ROOM_CODE_LENGTH - 1].focus();
                 submitRoom(pasteData);
             } else {
                 inputRefs.current[pasteData.length]?.focus();
@@ -74,7 +75,7 @@ export default function JoinRoom() {
     return (
         <div className="w-full max-w-md bg-neutral-900/80 backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-6 md:p-8 flex flex-col items-center">
             <h1 className="text-3xl font-extrabold text-white mb-2 drop-shadow-md">Join Room</h1>
-            <p className="text-neutral-400 text-sm mb-6 text-center">Enter the 4-character room code</p>
+            <p className="text-neutral-400 text-sm mb-6 text-center">Enter the {ROOM_CODE_LENGTH}-character room code</p>
             
             <div className="h-6 mb-2">
                 {error && <p className="text-red-500 text-sm font-mono text-center">{error}</p>}
@@ -100,7 +101,7 @@ export default function JoinRoom() {
             <button 
                 type="button" 
                 onClick={() => submitRoom(code.join(""))}
-                disabled={loading || code.join("").length !== 4} 
+                disabled={loading || code.join("").length !== ROOM_CODE_LENGTH} 
                 className="select-none touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 active:scale-[0.98] cursor-pointer w-full p-4 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-white font-bold tracking-wide shadow-lg hover:shadow-emerald-500/25 transition-all duration-300"
             >
                 {loading ? "Joining..." : "Join Game"}

@@ -1,5 +1,8 @@
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { socket } from './utils/socket';
+import { SOCKET_EVENTS } from '../../shared/gameConstants.js';
 
 
 import RoomManger from './components/RoomManager';
@@ -7,7 +10,6 @@ import LoadingScreen from './components/LoadingScreen';
 import LandingPage from './components/LandingPage';
 import HomePage from './components/HomePage';
 import Profile from './components/Profile';
-//import Profile from './components/Profile';
 
 function ProtectedRoute({children}) {
   const { user, loading } = useAuth();
@@ -17,10 +19,27 @@ function ProtectedRoute({children}) {
   return user ? children : <Navigate to="/" replace />;
 }
 
-function App() {
+function AppRoutes() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedSession = localStorage.getItem('bridge_session');
+    
+    if (savedSession) {
+        const { roomId, userId } = JSON.parse(savedSession);
+        
+        socket.emit(SOCKET_EVENTS.RECONNECT_TO_ROOM, { roomId, userId }, (response) => {
+            if (response.success) {
+              navigate(`/room/${roomId}`, { 
+                  state: { recoveredGameState: response.gameState } 
+              });
+            } 
+            else localStorage.removeItem('bridge_session');
+        });
+    }
+  }, [navigate]);
 
   return (
-    <Router>
       <Routes>
         <Route
           path="/"
@@ -36,7 +55,7 @@ function App() {
           path="/home"
           element={
             <ProtectedRoute>
-              <HomePage onJoinRoom={() => console.log("Join Room")} onCreateRoom={() => console.log("Create Room")} />
+              <HomePage />
             </ProtectedRoute>
           }
         />
@@ -50,8 +69,14 @@ function App() {
           }
         />
       </Routes>
-    </Router>
+  );
+}
 
+function App() {
+  return (
+    <Router>
+        <AppRoutes />
+    </Router>
   );
 }
 

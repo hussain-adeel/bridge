@@ -4,6 +4,7 @@ import PlayerHand from "./PlayerHand";
 import Bidding from "./Bidding";
 import MiddleStack from "./MiddleStack";
 import End from "./End";
+import { DEAL_CARD_COUNTS, GAME_PHASES, MAX_PLAYERS, TEAM_IDS } from "../../../shared/gameConstants.js";
 
 export default function BridgeGameBoard({gameState, localUser}) {
 
@@ -12,7 +13,7 @@ export default function BridgeGameBoard({gameState, localUser}) {
 
     const getRelativePlayer = (offset) => {
         if (myIndex == null) return null;
-        const targetIndex = (myIndex + offset) % 4;
+        const targetIndex = (myIndex + offset) % MAX_PLAYERS;
         return gameState?.players?.find(p => p.index === targetIndex) ?? null;
     };
 
@@ -22,13 +23,11 @@ export default function BridgeGameBoard({gameState, localUser}) {
     }
     
     const myTeamId = gameState?.players?.find(p => p.id === localUser.id)?.teamId ?? "";
-    const enemyTeamId = myTeamId == "team_1" ? "team_2" : "team_1";
+    const enemyTeamId = myTeamId == TEAM_IDS.ONE ? TEAM_IDS.TWO : TEAM_IDS.ONE;
 
     const leftOpponent = getRelativePlayer(1);
     const partner = getRelativePlayer(2);
     const rightOpponent = getRelativePlayer(3);
-    const self = gameState?.players?.find(p => p.index === myIndex) ?? "";
-
     const myCards = gameState?.hand ?? [];
     const leadSuit = gameState?.playingData?.ledSuit ?? "";
 
@@ -40,12 +39,13 @@ export default function BridgeGameBoard({gameState, localUser}) {
     const teamScore = gameState?.currentHandTricks?.[myTeamId] ?? 0;
     const enemyScore = gameState?.currentHandTricks?.[enemyTeamId] ?? 0;
     const tricksWon = gameState?.players?.find(p => p.index === myIndex)?.tricksWon ?? 0;
-    const showEndScreen = (gameState?.gamePhase === "ROUND_END" || gameState?.gamePhase === "MATCH_END") ?? false;
+    const isRoundOrMatchEnd = gameState?.gamePhase === GAME_PHASES.ROUND_END || gameState?.gamePhase === GAME_PHASES.MATCH_END;
     const teamWonRound = teamScore > enemyScore;
-    const matchOver = gameState?.gamePhase === "MATCH_END" ?? false
+    const matchOver = gameState?.gamePhase === GAME_PHASES.MATCH_END;
     const teamMatchScore = gameState?.matchScore?.[myTeamId] ?? 0;
     const enemyMatchScore = gameState?.matchScore?.[enemyTeamId] ?? 0;
-    const teamWonMatch = teamMatchScore > enemyMatchScore ?? false;
+    const teamWonMatch = teamMatchScore > enemyMatchScore;
+    const cardsInCurrentDeal = DEAL_CARD_COUNTS[gameState?.dealNumber] ?? 0;
 
 
 
@@ -86,22 +86,27 @@ export default function BridgeGameBoard({gameState, localUser}) {
                         </div>
 
                         <div className="col-start-2 row-start-2 flex justify-center items-center">
-                            {(gameState.gamePhase === "BIDDING" || gameState.gamePhase === "DEALING") ? ( 
+                            {gameState.gamePhase === GAME_PHASES.BIDDING ? ( 
                             <Bidding 
                                 currSuit={gameState?.contract?.suit} 
                                 currTricks={gameState?.contract?.tricks}  
                                 gamePhase={gameState?.gamePhase}
-                                round={gameState?.round}
+                                auctionNumber={gameState?.auctionNumber}
                                 isMyTurn={isMyTurn}
                                 onBid={(bid) => console.log("Bid placed: ", bid)}
                                 onPass={() => console.log("passed")}
                             /> 
-                            ) : gameState.gamePhase === "PLAYING" ? (
+                            ) : gameState.gamePhase === GAME_PHASES.PLAYING ? (
                             <MiddleStack 
                                 cardsOnTable={gameState.playingData?.cardsOnTable ?? []} 
                                 myIndex={myIndex}
                             />
-                            ) : (
+                            ) : gameState.gamePhase === GAME_PHASES.DEALING ? (
+                            <div className="w-full max-w-md flex flex-col items-center gap-2 mx-auto bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-600 text-white select-none">
+                                <span className="font-extrabold text-3xl">DEALING CARDS...</span>
+                                <span className="text-slate-300">{cardsInCurrentDeal} cards per player</span>
+                            </div>
+                            ) : isRoundOrMatchEnd ? (
                             <End
                                 teamWonRound={teamWonRound}
                                 teamRoundScore={teamScore}
@@ -112,7 +117,7 @@ export default function BridgeGameBoard({gameState, localUser}) {
                                 enemyMatchScore={enemyMatchScore}
                                 onReturnToLobby={() => console.log("Return to lobby")}
                             />
-                            )
+                            ) : null
                         }
                         </div>
 

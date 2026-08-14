@@ -1,22 +1,21 @@
 import { useState } from "react";
+import { AUCTION_NUMBERS, BID_VALUES, GAME_PHASES, SUITS } from "../../../shared/gameConstants.js";
 
-export default function Bidding({currSuit, currTricks, gamePhase, round, isMyTurn, onBid, onPass}) {
+export default function Bidding({currSuit, currTricks, gamePhase, auctionNumber, isMyTurn, onBid, onPass}) {
 
     const [stagedBid, setStagedBid] = useState(null);
     const [confirmPass, setConfirmPass] = useState(false);
 
     const safeCurrSuit = currSuit ?? "";
     const safeCurrTricks = currTricks ?? 0;
-    const safeGamePhase = gamePhase ?? "LOADING";
+    const safeGamePhase = gamePhase;
     const safeIsMyTurn = isMyTurn ?? false;
 
-    const SUITS = ["Spades", "Hearts", "Clubs", "Diamonds"]
-    const BIDS = [6, 7, 8, 9, 10, 11, 12]
-
     const titleText = (safeGamePhase) => { 
-        if (safeGamePhase === "LOADING") return "LOADING DATA..."
-        else if (safeGamePhase === "DEALING") return "DEALING CARDS..."
-        else if (safeGamePhase === "BIDDING") return  "PLACE BID"
+        if (!safeGamePhase) return "LOADING DATA..."
+        if (safeGamePhase === GAME_PHASES.BIDDING && auctionNumber === AUCTION_NUMBERS.SECOND) return "SECOND AUCTION"
+        if (safeGamePhase === GAME_PHASES.BIDDING) return "PLACE BID"
+        return ""
     }
 
     return (
@@ -36,7 +35,7 @@ export default function Bidding({currSuit, currTricks, gamePhase, round, isMyTur
 
                     <div key={suit} className="flex flex-col gap-2">
                         <span className="cursor-default">{suit}</span>
-                        {BIDS.map((rank) => {
+                        {BID_VALUES.map((rank) => {
                             const isDisabled = !safeIsMyTurn || rank <= currTricks
                             const isCurrentBid = rank === currTricks && suit === currSuit;
                             const isUserSelected = stagedBid?.suit === suit && stagedBid?.rank === rank;

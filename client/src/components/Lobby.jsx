@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { MATCH_ROUND_OPTIONS } from "../../../shared/gameConstants.js";
 
 export default function Lobby({players, roomCode, roundsInMatch, onRoundsChange, localUser, onToggleReady}) {
     const [copied, setCopied] = useState(false);
@@ -8,7 +9,7 @@ export default function Lobby({players, roomCode, roundsInMatch, onRoundsChange,
     const safeLocalUser = localUser ?? {};
     const safeRoundsInMatch = roundsInMatch ?? 1;
 
-    const roundOptions = [1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 50, 100]
+    const roundOptions = MATCH_ROUND_OPTIONS;
 
     const isHost = (safePlayers.length > 0 && safePlayers[0].id == localUser.id) ?? false;
     const isReady = safePlayers[safeLocalUser.id]?.isReady ?? false;
