@@ -1,29 +1,33 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-export default function End({teamWonRound, teamRoundScore, enemyRoundScore, matchOver, teamWonMatch, teamMatchScore, enemyMatchScore, onReturnToLobby}) {
+export default function End({myTeamId, roundWinnerTeamId, matchWinnerTeamId, roundEndsAt, teamRoundScore, enemyRoundScore, matchOver, teamMatchScore, enemyMatchScore, onReturnToLobby}) {
 
     const [fillWidth, setFillWidth] = useState(0);
+    const [remainingRoundTime, setRemainingRoundTime] = useState(0);
 
     useEffect(() => {
-        if (matchOver) return;
+        if (matchOver) return undefined;
 
-        const timer = setTimeout(() => {
+        const animationFrame = requestAnimationFrame(() => {
+            const endTime = new Date(roundEndsAt).getTime();
+            const remainingTime = Number.isFinite(endTime) ? Math.max(endTime - Date.now(), 0) : 0;
+            setRemainingRoundTime(remainingTime);
             setFillWidth(100);
-        }, 50);
+        });
 
-        return () => clearTimeout(timer);
-    }, [matchOver]);
+        return () => cancelAnimationFrame(animationFrame);
+    }, [matchOver, roundEndsAt]);
 
     // Round Details
-    const safeTeamWonRound = teamWonRound ?? false;
+    const safeTeamWonRound = roundWinnerTeamId === myTeamId;
     const safeTeamRoundScore = teamRoundScore ?? 0;
     const safeEnemyRoundScore = enemyRoundScore ?? 0;
 
     // Match Details
-    const safeMatchOver = matchOver ?? true;
+    const safeMatchOver = matchOver ?? false;
     const safeTeamMatchScore = teamMatchScore ?? 0;
     const safeEnemyMatchScore = enemyMatchScore ?? 0;
-    const safeTeamWonMatch = teamWonMatch ?? false;
+    const safeTeamWonMatch = matchWinnerTeamId === myTeamId;
 
     const summaryStatusText = () => {
         if (safeMatchOver)
@@ -41,7 +45,7 @@ export default function End({teamWonRound, teamRoundScore, enemyRoundScore, matc
                 <h1 className="text-white font-extrabold text-3xl mb-2">
                     {safeMatchOver ? "Match Summary" : "Round Summary"}
                 </h1>
-                <span className={`${teamWonMatch || teamWonRound ? 'text-green-300' : 'text-red-300'} font-semibold text-xl`}>{summaryStatusText()}</span>
+                <span className={`${safeTeamWonMatch || safeTeamWonRound ? 'text-green-300' : 'text-red-300'} font-semibold text-xl`}>{summaryStatusText()}</span>
                 <br />
                 <h2 className="text-white font-extrabold text-3xl mt-10">
                     {safeMatchOver ? "Match Score" : "Round Score"}
@@ -73,7 +77,7 @@ export default function End({teamWonRound, teamRoundScore, enemyRoundScore, matc
                         className="absolute left-0 top-0 h-full bg-linear-to-r from-blue-700 to-blue-500"
                         style={{ 
                             width: `${fillWidth}%`, 
-                            transition: "width 7s linear" 
+                            transition: `width ${remainingRoundTime}ms linear`
                         }}
                     ></div>
 
