@@ -4,20 +4,9 @@ import Lobby from "./Lobby";
 import { ROOM_STATUSES } from "../../../shared/gameConstants.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRoomGameState } from "../hooks/useRoomGameState.js";
-import { useGameActions } from "../hooks/useGameActions.js";
 
 export default function RoomManager() {
     const { code: roomCode } = useParams()
-
-    const {
-        onToggleReady,
-        onRoundsChange,
-        onStartMatch,
-        onBid,
-        onPass,
-        onPlayCard,
-        onReturnToLobby
-    } = useGameActions(roomCode);
 
     const {
         roomState,
@@ -37,8 +26,11 @@ export default function RoomManager() {
 
     if (errorMessage) {
         return (
-            <div className="fixed inset-0 flex items-center justify-center bg-board-bg p-6">
-                <div className="w-full max-w-md rounded-2xl border border-red-400/20 bg-slate-900 p-8 text-center shadow-2xl">
+            <div className="fixed inset-0 flex items-center justify-center overflow-hidden bg-board-bg p-6">
+                <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-slate-950/30 via-slate-950/65 to-slate-950" />
+                <div className="pointer-events-none absolute -left-28 top-16 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
+                <div className="pointer-events-none absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
+                <div className="relative w-full max-w-md rounded-2xl border border-red-400/20 bg-slate-900 p-8 text-center shadow-2xl">
                     <span className="text-4xl text-red-300">!</span>
                     <h1 className="mt-3 text-3xl font-extrabold text-white">Unable to join room</h1>
                     <p className="mt-3 text-slate-300">{errorMessage}</p>
@@ -64,10 +56,6 @@ export default function RoomManager() {
                 roomCode={roomState.roomCode}
                 hostId={roomState.host}
                 roundsToWin={roomState.roundsToWin}
-                onRoundsChange={onRoundsChange}
-                onToggleReady={onToggleReady}
-                onStartMatch={onStartMatch}
-                onReturnHome={returnHome}
             />
         );
     }
@@ -78,10 +66,6 @@ export default function RoomManager() {
         <BridgeGameBoard
             gameState={gameState}
             players={roomState.players}
-            onBid={onBid}
-            onPass={onPass}
-            onPlayCard={onPlayCard}
-            onReturnToLobby={onReturnToLobby}
         />
     );
 }

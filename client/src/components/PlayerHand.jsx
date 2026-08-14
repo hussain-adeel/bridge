@@ -1,9 +1,13 @@
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 import { GAME_PHASES, RANKS, SUITS } from "../../../shared/gameConstants.js";
 import Card from "./Card";
+import { useGameActions } from "../hooks/useGameActions.js";
 
-export default function PlayerHand({ cards, leadSuit, onPlayCard = () => {}, gamePhase, isMyTurn, tricksWon }) {
+export default function PlayerHand({ cards, leadSuit, gamePhase, isMyTurn, tricksWon }) {
     const [selectedCard, setSelectedCard] = useState(null);
+    const { code: roomCode } = useParams();
+    const { onPlayCard } = useGameActions(roomCode);
     const safeCards = cards ?? [];
     const safeLeadSuit = leadSuit ?? "";
     const safeIsMyTurn = isMyTurn ?? false;

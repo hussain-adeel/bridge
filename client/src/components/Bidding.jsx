@@ -1,7 +1,12 @@
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 import { AUCTION_NUMBERS, BID_VALUES, GAME_PHASES, SUITS } from "../../../shared/gameConstants.js";
+import { useGameActions } from "../hooks/useGameActions.js";
 
-export default function Bidding({currSuit, currTricks, gamePhase, auctionNumber, isMyTurn, onBid, onPass}) {
+export default function Bidding({currSuit, currTricks, gamePhase, auctionNumber, isMyTurn}) {
+
+    const { code: roomCode } = useParams();
+    const { onBid, onPass } = useGameActions(roomCode);
 
     const [stagedBid, setStagedBid] = useState(null);
     const [confirmPass, setConfirmPass] = useState(false);

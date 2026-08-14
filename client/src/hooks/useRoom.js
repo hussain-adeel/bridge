@@ -18,8 +18,15 @@ export function useRoom() {
         return true;
     };
 
+    const onLeaveRoom = async (roomCode) => {
+        await emitAsync(SOCKET_EVENTS.LEAVE_ROOM, { roomCode });
+        localStorage.removeItem("bridge_session");
+        navigate("/home");
+    };
+
     return {
         onCreateRoom,
         onJoinRoom,
+        onLeaveRoom
     }
 }

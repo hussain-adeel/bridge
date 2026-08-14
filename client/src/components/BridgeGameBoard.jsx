@@ -10,10 +10,6 @@ import { DEAL_CARD_COUNTS, GAME_PHASES, MAX_PLAYERS, TEAM_IDS } from "../../../s
 export default function BridgeGameBoard({
     gameState,
     players,
-    onBid = () => {},
-    onPass = () => {},
-    onPlayCard = () => {},
-    onReturnToLobby = () => {},
 }) {
     const { user } = useAuth();
     const safePlayers = players ?? [];
@@ -80,8 +76,6 @@ export default function BridgeGameBoard({
                                     gamePhase={gameState.gamePhase}
                                     auctionNumber={gameState.auctionNumber}
                                     isMyTurn={isMyTurn && !isGamePaused}
-                                    onBid={onBid}
-                                    onPass={onPass}
                                 />
                             ) : gameState.gamePhase === GAME_PHASES.PLAYING ? (
                                 <MiddleStack cardsOnTable={gameState.playingData?.cardsOnTable ?? []} myIndex={myIndex} />
@@ -102,7 +96,6 @@ export default function BridgeGameBoard({
                                     matchOver={matchOver}
                                     teamMatchScore={teamMatchScore}
                                     enemyMatchScore={enemyMatchScore}
-                                    onReturnToLobby={onReturnToLobby}
                                 />
                             ) : null}
                         </div>
@@ -115,7 +108,6 @@ export default function BridgeGameBoard({
                             <PlayerHand
                                 cards={myCards}
                                 leadSuit={leadSuit}
-                                onPlayCard={onPlayCard}
                                 gamePhase={gameState.gamePhase}
                                 isMyTurn={isMyTurn && !isGamePaused}
                                 tricksWon={tricksWon}

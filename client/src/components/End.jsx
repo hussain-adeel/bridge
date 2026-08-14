@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useGameActions } from "../hooks/useGameActions.js";
 
-export default function End({myTeamId, roundWinnerTeamId, matchWinnerTeamId, roundEndsAt, teamRoundScore, enemyRoundScore, matchOver, teamMatchScore, enemyMatchScore, onReturnToLobby}) {
+export default function End({myTeamId, roundWinnerTeamId, matchWinnerTeamId, roundEndsAt, teamRoundScore, enemyRoundScore, matchOver, teamMatchScore, enemyMatchScore}) {
 
     const [fillWidth, setFillWidth] = useState(0);
     const [remainingRoundTime, setRemainingRoundTime] = useState(0);
+    const { code: roomCode } = useParams();
+    const { onReturnToLobby } = useGameActions(roomCode);
 
     useEffect(() => {
         if (matchOver) return undefined;
