@@ -1,21 +1,21 @@
 const activeRooms = new Map();
 
-export function getRoom(roomId) {
-    return activeRooms.get(roomId);
+export function getRoom(roomCode) {
+    return activeRooms.get(roomCode);
 }
 
-export function saveRoom(roomId, roomData) {
-    activeRooms.set(roomId, roomData);
+export function saveRoom(roomCode, roomData) {
+    activeRooms.set(roomCode, roomData);
 }
 
-export function deleteRoom(roomId) {
-    activeRooms.delete(roomId);
+export function deleteRoom(roomCode) {
+    activeRooms.delete(roomCode);
 }
 
 export function getAllRooms() {
     return Array.from(activeRooms.values());
 }
 
-export function roomExists(roomId) {
-    return activeRooms.has(roomId);
+export function roomExists(roomCode) {
+    return activeRooms.has(roomCode);
 }

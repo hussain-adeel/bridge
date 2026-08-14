@@ -1,4 +1,4 @@
-import { useAuth } from './context/AuthContext';
+import { useAuth } from './hooks/useAuth';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { socket } from './utils/socket';
@@ -26,11 +26,11 @@ function AppRoutes() {
     const savedSession = localStorage.getItem('bridge_session');
     
     if (savedSession) {
-        const { roomId, userId } = JSON.parse(savedSession);
+        const { roomCode, userId } = JSON.parse(savedSession);
         
-        socket.emit(SOCKET_EVENTS.RECONNECT_TO_ROOM, { roomId, userId }, (response) => {
+        socket.emit(SOCKET_EVENTS.RECONNECT_TO_ROOM, { roomCode, userId }, (response) => {
             if (response.success) {
-              navigate(`/room/${roomId}`, { 
+              navigate(`/room/${roomCode}`, { 
                   state: { recoveredGameState: response.gameState } 
               });
             } 
