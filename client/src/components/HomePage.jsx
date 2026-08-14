@@ -33,10 +33,12 @@ export default function HomePage() {
     }
 
 return (
-        <div className="w-full min-h-screen p-6 md:p-12 flex flex-col items-center bg-board-bg bg-cover bg-center overflow-x-hidden">
-            <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+        <div className="relative w-full min-h-screen p-6 md:p-12 flex flex-col items-center bg-board-bg bg-cover bg-center overflow-x-hidden">
+            <div className="absolute inset-0 bg-linear-to-b from-slate-950/30 via-slate-950/65 to-slate-950 pointer-events-none" />
+            <div className="pointer-events-none absolute -left-28 top-16 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
+            <div className="pointer-events-none absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
             
-            <div className="relative z-10 flex flex-col items-center w-full max-w-md mt-4 md:mt-8">
+            <div className={`relative z-10 flex flex-col items-center w-full ${activeView === "rules" ? "max-w-md lg:max-w-6xl" : "max-w-md"} mt-4 md:mt-8`}>
                 <img 
                     src={bridge_logo} 
                     alt="Bridge Logo"

@@ -16,10 +16,10 @@ export default function LandingPage() {
 
     return (
         <div className="w-full min-h-screen flex flex-col items-center justify-center p-6 md:p-12 bg-board-bg bg-cover bg-center overflow-hidden relative">
-            <div className="absolute inset-0 bg-linear-to-b from-black/40 via-black/60 to-black/90 pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-b from-slate-950/30 via-slate-950/65 to-slate-950 pointer-events-none" />
             
             <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-emerald-600/20 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
-            <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-cyan-600/20 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
+            <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-amber-300/15 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
 
             <div className="relative z-10 flex flex-col items-center w-full max-w-md animate-in fade-in slide-in-from-bottom-8 duration-1000">
                 <span className="text-emerald-400 font-extrabold tracking-[0.3em] uppercase text-xs md:text-sm mb-2 drop-shadow-md">

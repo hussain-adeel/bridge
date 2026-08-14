@@ -35,7 +35,9 @@ export default function Profile() {
     if (notFound) {
         return (
             <div className="w-full min-h-screen flex flex-col items-center justify-center bg-board-bg bg-cover bg-center overflow-hidden relative p-8">
-                <div className="absolute inset-0 bg-black/60 pointer-events-none" />
+                <div className="absolute inset-0 bg-linear-to-b from-slate-950/30 via-slate-950/65 to-slate-950 pointer-events-none" />
+                <div className="pointer-events-none absolute -left-28 top-16 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
+                <div className="pointer-events-none absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
                 <div className="relative z-10 w-full max-w-md bg-neutral-900/70 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl flex flex-col items-center gap-4 animate-in fade-in zoom-in-95 duration-500">
                     <h2 className="text-3xl font-black text-white tracking-tight">Player not found</h2>
                     <p className="text-neutral-400 text-center">This profile doesn't exist or may have been renamed.</p>
@@ -55,7 +57,9 @@ export default function Profile() {
 
     return (
         <div className="w-full min-h-screen p-4 md:p-12 flex flex-col items-center bg-board-bg bg-cover bg-center overflow-x-hidden relative">
-            <div className="absolute inset-0 bg-black/50 pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-b from-slate-950/30 via-slate-950/65 to-slate-950 pointer-events-none" />
+            <div className="pointer-events-none absolute -left-28 top-16 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
+            <div className="pointer-events-none absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
             
             <div className="relative z-10 w-full max-w-3xl bg-neutral-900/70 backdrop-blur-2xl border border-white/10 rounded-4xl p-6 md:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] flex flex-col gap-8 mt-4 md:mt-10 mb-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
                 

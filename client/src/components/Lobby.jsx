@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { useRoom } from "../hooks/useRoom.js"
+import { useGameActions } from "../hooks/useGameActions.js";
 import { DEFAULT_ROUNDS_TO_WIN, MATCH_ROUND_OPTIONS, MAX_PLAYERS } from "../../../shared/gameConstants.js";
 
-export default function Lobby({ players, roomCode, hostId, roundsToWin, onRoundsChange = () => {}, onToggleReady = () => {}, onStartMatch = () => {}, onReturnHome = () => {} }) {
+export default function Lobby({ players, roomCode, hostId, roundsToWin }) {
     const { user } = useAuth();
+    const { onLeaveRoom } = useRoom();
+    const { onToggleReady, onRoundsChange, onStartMatch } = useGameActions(roomCode);
     const [copied, setCopied] = useState(false);
     const safePlayers = players ?? [];
     const safeRoomCode = roomCode ?? "Loading...";
@@ -50,7 +54,7 @@ export default function Lobby({ players, roomCode, hostId, roundsToWin, onRounds
                             </div>
                         </div>
                         <button
-                            onClick={onReturnHome}
+                            onClick={() => onLeaveRoom(roomCode)}
                             className="rounded-xl border border-slate-600 bg-slate-900/70 px-4 py-3 text-sm font-bold text-slate-200 transition hover:border-slate-400 hover:bg-slate-800 hover:text-white"
                         >
                             Return Home
