@@ -39,6 +39,7 @@ export const MAX_PLAYERS = 4;
 export const CARDS_PER_PLAYER = 13;
 export const TRICKS_PER_ROUND = 13;
 export const MATCH_ROUND_OPTIONS = [1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 50, 100];
+export const DEFAULT_ROUNDS_TO_WIN = MATCH_ROUND_OPTIONS[0];
 
 export const TEAM_IDS = {
     ONE: "team_1",
@@ -58,4 +59,5 @@ export const SUIT_SYMBOLS = {
 export const RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"];
 
 export const MINIMUM_BID = 6;
-export const BID_VALUES = [6, 7, 8, 9, 10, 11, 12];
+export const MAXIMUM_BID = 12;
+export const BID_VALUES = Array.from({ length: MAXIMUM_BID - MINIMUM_BID + 1 }, (_, index) => MINIMUM_BID + index);

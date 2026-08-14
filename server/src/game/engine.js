@@ -1,4 +1,4 @@
-import { TEAM_IDS } from "./constants.js";
+import { TEAM_IDS } from "../../../shared/gameConstants.js";
 
 export function createInitialGameState() {
     return {

@@ -1,5 +1,5 @@
 import { roomExists } from "../game/state.js";
-import { ROOM_CODE_CHARACTERS, ROOM_CODE_LENGTH } from "../game/constants.js";
+import { ROOM_CODE_CHARACTERS, ROOM_CODE_LENGTH } from "../../../shared/gameConstants.js";
 
 export function generateRoomCode() {
     let code;
