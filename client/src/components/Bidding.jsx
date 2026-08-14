@@ -66,7 +66,14 @@ export default function Bidding({currSuit, currTricks, gamePhase, auctionNumber,
             </div>
             <div className="grid grid-cols-2 gap-4 mt-2 pt-4 border-t border-slate-600 text-white">
                 <button 
-                    onClick={() => confirmPass === true ? onPass() : setConfirmPass(true)}
+                    onClick={() => {
+                        if (confirmPass) {
+                            onPass();
+                            setConfirmPass(false);
+                            return;
+                        }
+                        setConfirmPass(true);
+                    }}
                     className={
                         `py-1.5 rounded font-bold transition-all duration-200 cursor-pointer disabled:hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60
                         ${confirmPass? "bg-green-700 hover:bg-green-500 border-green-600 hover:border-green-400" : "hover:bg-slate-600 bg-slate-700 "}
@@ -76,7 +83,10 @@ export default function Bidding({currSuit, currTricks, gamePhase, auctionNumber,
                     {confirmPass ? "Confrim Pass?" : "Pass"}
                 </button>
                 <button 
-                    onClick={() => onBid(stagedBid)}
+                    onClick={() => {
+                        onBid(stagedBid);
+                        setStagedBid(null);
+                    }}
                     className="py-1.5 rounded font-bold transition-all duration-200 bg-slate-700 hover:bg-slate-600 disabled:hover:bg-slate-700 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                     disabled={stagedBid === null}
                 >
