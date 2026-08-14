@@ -18,6 +18,7 @@ export default function BridgeGameBoard({
     const { user } = useAuth();
     const safePlayers = players ?? [];
     const localPlayer = safePlayers.find((player) => player.id === user?.id) ?? null;
+    const disconnectedPlayers = safePlayers.filter((player) => player.isConnected === false);
     const myIndex = localPlayer?.index ?? null;
     const myTeamId = localPlayer?.teamId ?? null;
     const enemyTeamId = myTeamId === TEAM_IDS.ONE ? TEAM_IDS.TWO : TEAM_IDS.ONE;
@@ -45,9 +46,8 @@ export default function BridgeGameBoard({
     const matchOver = gameState.gamePhase === GAME_PHASES.MATCH_END;
     const teamMatchScore = gameState.matchScore?.[myTeamId] ?? 0;
     const enemyMatchScore = gameState.matchScore?.[enemyTeamId] ?? 0;
-    const teamWonRound = teamScore > enemyScore;
-    const teamWonMatch = teamMatchScore > enemyMatchScore;
     const cardsInCurrentDeal = DEAL_CARD_COUNTS[gameState.dealNumber] ?? 0;
+    const isGamePaused = disconnectedPlayers.length > 0;
 
     return (
         <div className="relative w-full h-screen box-border bg-board-bg flex flex-col overflow-hidden">
@@ -74,11 +74,12 @@ export default function BridgeGameBoard({
                         <div className="col-start-2 row-start-2 flex justify-center items-center">
                             {gameState.gamePhase === GAME_PHASES.BIDDING ? (
                                 <Bidding
+                                    key={`${gameState.gamePhase}-${gameState.auctionNumber}-${gameState.activePlayerIndex}`}
                                     currSuit={gameState.contract?.suit}
                                     currTricks={gameState.contract?.tricks}
                                     gamePhase={gameState.gamePhase}
                                     auctionNumber={gameState.auctionNumber}
-                                    isMyTurn={isMyTurn}
+                                    isMyTurn={isMyTurn && !isGamePaused}
                                     onBid={onBid}
                                     onPass={onPass}
                                 />
@@ -91,11 +92,14 @@ export default function BridgeGameBoard({
                                 </div>
                             ) : isRoundOrMatchEnd ? (
                                 <End
-                                    teamWonRound={teamWonRound}
+                                    key={`${gameState.gamePhase}-${gameState.roundEndsAt ?? ""}`}
+                                    myTeamId={myTeamId}
+                                    roundWinnerTeamId={gameState.roundWinnerTeamId}
+                                    matchWinnerTeamId={gameState.matchWinnerTeamId}
+                                    roundEndsAt={gameState.roundEndsAt}
                                     teamRoundScore={teamScore}
                                     enemyRoundScore={enemyScore}
                                     matchOver={matchOver}
-                                    teamWonMatch={teamWonMatch}
                                     teamMatchScore={teamMatchScore}
                                     enemyMatchScore={enemyMatchScore}
                                     onReturnToLobby={onReturnToLobby}
@@ -113,13 +117,37 @@ export default function BridgeGameBoard({
                                 leadSuit={leadSuit}
                                 onPlayCard={onPlayCard}
                                 gamePhase={gameState.gamePhase}
-                                isMyTurn={isMyTurn}
+                                isMyTurn={isMyTurn && !isGamePaused}
                                 tricksWon={tricksWon}
                             />
                         </div>
                     </div>
                 </div>
             </div>
+
+            {isGamePaused && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-6 backdrop-blur-sm">
+                    <div className="w-full max-w-md rounded-2xl border border-amber-300/30 bg-slate-900 p-8 text-center shadow-2xl">
+                        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-amber-300/30 bg-amber-300/10 text-3xl text-amber-300">
+                            {"\u23F8"}
+                        </div>
+                        <h1 className="mt-5 text-3xl font-extrabold text-white">Game Paused</h1>
+                        <p className="mt-3 text-slate-300">
+                            The match will continue once every disconnected player reconnects.
+                        </p>
+                        <div className="mt-5 rounded-lg border border-slate-700 bg-slate-950/60 px-4 py-3 text-left">
+                            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Disconnected players</span>
+                            <ul className="mt-2 space-y-1 text-sm font-semibold text-red-300">
+                                {disconnectedPlayers.map((player) => <li key={player.id}>{player.username}</li>)}
+                            </ul>
+                        </div>
+                        <div className="mt-6 flex items-center justify-center gap-2 text-sm font-semibold text-amber-200">
+                            <span className="h-2 w-2 rounded-full bg-amber-300 animate-pulse" />
+                            Waiting for reconnection
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
