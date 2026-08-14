@@ -24,6 +24,10 @@ export default function PlayerAvatar({ player, isTurn, gamePhase }) {
         >
             <div className="flex items-center gap-1 overflow-hidden w-full justify-center">
                 <span className="font-bold uppercase truncate">{player.username}</span>
+                <span
+                    aria-label={player.isConnected === false ? "Disconnected" : "Connected"}
+                    className={`h-2 w-2 rounded-full shrink-0 ${player.isConnected === false ? "bg-red-400" : "bg-green-400"}`}
+                />
                 
                 <svg 
                     xmlns="http://www.w3.org/2000/svg" 
