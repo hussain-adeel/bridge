@@ -35,8 +35,19 @@ export function AuthProvider({children}) {
         return () => socket.disconnect();
     }, [user]);
 
-    const loginWithDiscord = () => supabase.auth.signInWithOAuth({ provider: 'discord' });
-    const loginWithGithub = () => supabase.auth.signInWithOAuth({ provider: 'github' });
+    const loginWithDiscord = () => supabase.auth.signInWithOAuth({
+        provider: 'discord',
+        options: { 
+            redirectTo: window.location.origin,
+        },
+    });
+
+    const loginWithGithub = () => supabase.auth.signInWithOAuth({ 
+        provider: 'github',
+        options: {
+            redirectTo: window.location.origin,
+        },
+    });
 
     const sendOtp = async (email) => {
         setLoading(true);
