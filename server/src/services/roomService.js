@@ -1,15 +1,26 @@
 import { generateRoomCode } from "../utils/helpers.js";
 import { roomExists, saveRoom, getRoom } from "../game/state.js";
 import { createInitialGameState } from "../game/engine.js";
-import { DEFAULT_ROUNDS_TO_WIN, MAX_PLAYERS, ROOM_STATUSES, TEAM_IDS } from "../../../shared/gameConstants.js";
+import { DEFAULT_ROUNDS_TO_WIN, MAX_PLAYERS, ROOM_STATUSES, TEAM_IDS, MATCH_ROUND_OPTIONS } from "../../../shared/gameConstants.js";
 import { getPlayerGameState } from "./gameService.js";
+
+function getValidRoom(roomCode) {
+    const normalizedRoomCode = roomCode?.trim().toUpperCase();
+
+    if (!normalizedRoomCode || !roomExists(normalizedRoomCode)) return { success: false, error: "Room does not exist" };
+
+    return {
+        success: true,
+        roomCode: normalizedRoomCode,
+        room: getRoom(normalizedRoomCode)
+    };
+}
 
 export function createRoom({userId, username, socketId}) {
     const roomCode = generateRoomCode();
 
     console.log("[Bridge Server] Creating room for:", username, "with room code:", roomCode);
-    
-    // Make Inital Room & Game State
+
     const newRoom = {
         roomState: {
             roomCode: roomCode,
@@ -28,15 +39,15 @@ export function createRoom({userId, username, socketId}) {
 }
 
 export function joinRoom({userId, username, socketId, roomCode}) {
-    const normalizedRoomCode = roomCode?.trim().toUpperCase();
-    if (!normalizedRoomCode || !roomExists(normalizedRoomCode)) return {success: false, error: "Room does not exist."};
-    
-    const room = getRoom(normalizedRoomCode);
-    const existingPlayer = room.roomState.players.find((player) => player.id === userId);
+    const roomResult = getValidRoom(roomCode);
+    if (!roomResult.success) return roomResult;
 
-    if (existingPlayer) {
-        existingPlayer.socketId = socketId;
-        existingPlayer.isConnected = true;
+    const { roomCode: normalizedRoomCode, room } = roomResult;
+    const player = room.roomState.players.find((player) => player.id === userId);
+
+    if (player) {
+        player.socketId = socketId;
+        player.isConnected = true;
         saveRoom(normalizedRoomCode, room);
         return {success: true, roomCode: normalizedRoomCode};
     }
@@ -64,14 +75,13 @@ export function joinRoom({userId, username, socketId, roomCode}) {
 }
 
 export function getRoomGameState({userId, roomCode}) {
-    const normalizedRoomCode = roomCode?.trim().toUpperCase();
-    if (!normalizedRoomCode || !roomExists(normalizedRoomCode)) return {success: false, error: "Room does not exist."};
+    const roomResult = getValidRoom(roomCode);
+    if (!roomResult.success) return roomResult;
 
-    const room = getRoom(normalizedRoomCode);
-    
-    const existingPlayer = room.roomState.players.find((player) => player.id === userId);
+    const { roomCode: normalizedRoomCode, room } = roomResult;
+    const player = room.roomState.players.find((player) => player.id === userId);
 
-    if (!existingPlayer) return {success: false, error: "You are not connected to this room."};
+    if (!player) return {success: false, error: "You are not connected to this room."};
 
     const playerGameState = getPlayerGameState(room.gameState, userId);
     const publicRoomState = {
@@ -94,6 +104,63 @@ export function reconnectPlayer({}) {
     
 }
 
-export function readyPlayer({}) {
+export function readyPlayer({userId, roomCode}) {
+    const roomResult = getValidRoom(roomCode);
+    if (!roomResult.success) return roomResult;
+
+    const { roomCode: normalizedRoomCode, room } = roomResult;
+
+    if (room.roomState.status !== ROOM_STATUSES.LOBBY) return { 
+        success: false, 
+        error: "Game has already started." 
+    };
+
+    const player = room.roomState.players.find((player) => player.id === userId);
+    if (!player) return {
+        success: false, 
+        error: "You are not connected to this room."
+    };
     
+    // toggle ready
+    player.isReady = !player.isReady;
+
+    // not strictly necessary but just to be consistent
+    saveRoom(normalizedRoomCode, room);
+
+    return { success: true, roomCode: normalizedRoomCode };
+
+}
+
+export function changeMatchRounds({userId, roomCode, roundsToWin}) {
+    const roomResult = getValidRoom(roomCode);
+    if (!roomResult.success) return roomResult;
+
+    const { roomCode: normalizedRoomCode, room } = roomResult;
+
+    if (userId !== room.roomState.host) return {
+        success: false, 
+        error: "You are not the host."
+    };
+
+    if (room.roomState.status !== ROOM_STATUSES.LOBBY) return { 
+        success: false, 
+        error: "Game has already started." 
+    };
+
+    const player = room.roomState.players.find((player) => player.id === userId);
+    if (!player) return {
+        success: false, 
+        error: "You are not connected to this room."
+    };
+
+    // validate roundsToWin is a VALID option
+    if (!MATCH_ROUND_OPTIONS.includes(roundsToWin)) return {
+        success: false, 
+        error: "You did not select a valid round value."
+    };
+
+    room.roomState.roundsToWin = roundsToWin;
+    saveRoom(normalizedRoomCode, room);
+
+    return { success: true, roomCode: normalizedRoomCode };
 }
