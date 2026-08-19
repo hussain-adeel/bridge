@@ -127,7 +127,10 @@ export function readyPlayer({userId, roomCode}) {
     // not strictly necessary but just to be consistent
     saveRoom(normalizedRoomCode, room);
 
-    return { success: true, roomCode: normalizedRoomCode };
+    return { 
+        success: true, 
+        roomCode: normalizedRoomCode 
+    };
 
 }
 
@@ -153,14 +156,23 @@ export function changeMatchRounds({userId, roomCode, roundsToWin}) {
         error: "You are not connected to this room."
     };
 
-    // validate roundsToWin is a VALID option
-    if (!MATCH_ROUND_OPTIONS.includes(roundsToWin)) return {
-        success: false, 
+    const normalizedRoundsToWin = Number(roundsToWin);
+
+    if (
+    !Number.isInteger(normalizedRoundsToWin) ||
+    !MATCH_ROUND_OPTIONS.includes(normalizedRoundsToWin)
+    ) {
+    return {
+        success: false,
         error: "You did not select a valid round value."
     };
+    }
 
-    room.roomState.roundsToWin = roundsToWin;
+    room.roomState.roundsToWin = normalizedRoundsToWin;
     saveRoom(normalizedRoomCode, room);
 
-    return { success: true, roomCode: normalizedRoomCode };
+    return { 
+        success: true, 
+        roomCode: normalizedRoomCode 
+    };
 }
