@@ -84,7 +84,6 @@ export function getRoomGameState({userId, roomCode}) {
         roomState: publicRoomState,
         gameState: playerGameState
     }
-
 }
 
 export function disconnectPlayer({socketId}) {
@@ -92,5 +91,9 @@ export function disconnectPlayer({socketId}) {
 }
 
 export function reconnectPlayer({}) {
+    
+}
+
+export function readyPlayer({}) {
     
 }
