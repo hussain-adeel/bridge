@@ -25,15 +25,9 @@ export function AuthProvider({children}) {
     }, []);
 
     useEffect(() => {
-        if (!user) {
-            socket.disconnect();
-            return undefined;
-        }
-
-        socket.connect();
-
-        return () => socket.disconnect();
-    }, [user]);
+        if (user?.id) socket.connect();
+        else socket.disconnect();
+    }, [user?.id]);
 
     const loginWithDiscord = () => supabase.auth.signInWithOAuth({
         provider: 'discord',
