@@ -23,10 +23,10 @@ export function useGameActions(roomCode) {
         );
     };
 
-    const onBid = async ({rank, suit}) => {
+    const onBid = async ({tricks, suit}) => {
         await emitAsync(
             SOCKET_EVENTS.BID,
-            { roomCode, rank, suit }
+            { roomCode, tricks, suit }
         );
     };
 
