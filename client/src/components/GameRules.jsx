@@ -13,12 +13,12 @@ export default function GameRules() {
                     Phase 1: The Deal & The Auction
                 </h2>
                 <p className="max-w-5xl mx-auto mb-6">
-                    The game begins with a multi-step dealing and bidding process to determine the <strong className="text-white">"contract."</strong> A contract consists of a target number of tricks and a designated trump suit.
+                    The game begins with a multi-step dealing and bidding process to determine the <strong className="text-white">"contract."</strong> A contract consists of a target number of tricks and a designated trump suit. The sequence is: deal 5 cards, first auction, deal 4 cards, second auction, deal the final 4 cards, then play.
                 </p>
                 
                 <ul className="list-decimal list-inside space-y-3 mb-12 text-left max-w-5xl mx-auto bg-neutral-900/60 p-6 rounded-2xl border border-neutral-700/50 shadow-lg">
                     <li><strong className="text-white">The First Deal:</strong> Each player is dealt 5 cards.</li>
-                    <li><strong className="text-white">The Opening Auction:</strong> A player is selected at random to open the bidding. 
+                    <li><strong className="text-white">The First Auction:</strong> A player is selected at random to open the bidding. 
                         <ul className="list-disc list-inside ml-8 mt-2 space-y-2 text-sm text-neutral-400">
                             <li>A bid must declare a trump suit and a total number of tricks the team commits to winning.</li>
                             <li>The minimum allowed opening bid is <strong className="text-white">6 tricks</strong>.</li>
