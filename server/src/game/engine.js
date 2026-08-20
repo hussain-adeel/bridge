@@ -1,4 +1,5 @@
-import { TEAM_IDS } from "../../../shared/gameConstants.js";
+import { TEAM_IDS, RANKS, SUITS } from "../../../shared/gameConstants.js";
+import { randomInt } from "node:crypto";
 
 export function createInitialGameState() {
     return {
@@ -16,11 +17,19 @@ export function createInitialGameState() {
 
         hands: {}, 
 
+        remainingDeck: [],
+
         biddingData: {
             history: []
         },
 
-        contract: null,
+        contract: {
+            tricks: 0,
+            suit: null,
+            teamId: null,
+            declarerId: null,
+            declarerIndex: null,
+        },
 
         playingData: {
             ledSuit: null, 
@@ -46,4 +55,29 @@ export function createInitialGameState() {
         matchWinnerTeamId: null,
         roundEndsAt: null
     };
+}
+
+export function createDeck() {
+    return SUITS.flatMap((suit) => 
+        RANKS.map((rank) => ({
+            id: `${rank}-${suit}`,
+            rank,
+            suit,
+        }))
+    )
+}
+
+export function shuffleDeck(deck) {
+    const shuffledDeck = [...deck];
+
+    for (let index = shuffledDeck.length - 1; index > 0; index -= 1) {
+        const randomIndex = randomInt(index + 1);
+
+        [shuffledDeck[index], shuffledDeck[randomIndex]] = [
+            shuffledDeck[randomIndex],
+            shuffledDeck[index],
+        ];
+    }
+
+    return shuffledDeck;
 }
