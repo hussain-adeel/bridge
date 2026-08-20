@@ -7,6 +7,10 @@ export function useRoom() {
     const onCreateRoom = async () => {
         const response = await emitAsync(SOCKET_EVENTS.CREATE_ROOM, {});
 
+        localStorage.setItem(
+            "bridge_session",
+            JSON.stringify({ roomCode: response.roomCode })
+        )
         navigate(`/room/${response.roomCode}`);
         return true;
     };
@@ -14,6 +18,10 @@ export function useRoom() {
     const onJoinRoom = async (roomCode) => {
         const response = await emitAsync(SOCKET_EVENTS.JOIN_ROOM, {roomCode});
 
+        localStorage.setItem(
+            "bridge_session",
+            JSON.stringify({ roomCode: response.roomCode })
+        )
         navigate(`/room/${response.roomCode}`);
         return true;
     };

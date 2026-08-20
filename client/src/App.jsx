@@ -26,31 +26,40 @@ function AppRoutes() {
   useEffect(() => {
     if (!user) return undefined;
 
-    const savedSession = localStorage.getItem('bridge_session');
-    let isCurrent = true;
-    
-    if (savedSession) {
-        try {
-          const { roomCode } = JSON.parse(savedSession);
+    const reconnectToRoom = () => {
+      const savedSession = localStorage.getItem('bridge_session');
+      if (!savedSession) return;
 
-          if (roomCode) {
-            socket.emit(SOCKET_EVENTS.RECONNECT_TO_ROOM, { roomCode }, (response) => {
-              if (!isCurrent) return;
+      try {
+        const { roomCode } = JSON.parse(savedSession);
+        if (!roomCode) return;
 
-              if (response.success) {
-                navigate(`/room/${roomCode}`);
-              } else {
-                localStorage.removeItem('bridge_session');
-              }
-            });
+        socket.emit(
+          SOCKET_EVENTS.RECONNECT_TO_ROOM,
+          {roomCode},
+          (response) => {
+            if (response.success) navigate(`/room/${roomCode}`)
+            else { 
+              localStorage.removeItem("bridge_session");
+              navigate("/home");
+            }
           }
-        } catch {
-          localStorage.removeItem('bridge_session');
-        }
+        )
+      }
+      catch {
+        localStorage.removeItem("bridge_session");
+        navigate("/home")
+      }
+    }  
+
+    socket.on("connect", reconnectToRoom);
+
+    if (socket.connected) {
+      reconnectToRoom();
     }
 
     return () => {
-      isCurrent = false;
+      socket.off("connect", reconnectToRoom);
     };
   }, [navigate, user]);
 

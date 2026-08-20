@@ -1,5 +1,5 @@
 import { generateRoomCode } from "../utils/helpers.js";
-import { roomExists, saveRoom, getRoom } from "../game/state.js";
+import { roomExists, saveRoom, getRoom, getAllRooms, deleteRoom } from "../game/state.js";
 import { createInitialGameState } from "../game/engine.js";
 import { DEFAULT_ROUNDS_TO_WIN, MAX_PLAYERS, ROOM_STATUSES, TEAM_IDS, MATCH_ROUND_OPTIONS } from "../../../shared/gameConstants.js";
 import { getPlayerGameState } from "./gameService.js";
@@ -43,6 +43,8 @@ export function joinRoom({userId, username, socketId, roomCode}) {
     if (!roomResult.success) return roomResult;
 
     const { roomCode: normalizedRoomCode, room } = roomResult;
+    if (room.roomState.status !== ROOM_STATUSES.LOBBY) return {success: false, error: "Game has already started."};
+
     const player = room.roomState.players.find((player) => player.id === userId);
 
     if (player) {
@@ -52,9 +54,18 @@ export function joinRoom({userId, username, socketId, roomCode}) {
         return {success: true, roomCode: normalizedRoomCode};
     }
 
-    const newIndex = room.roomState.players.length;
-    if (newIndex >= MAX_PLAYERS) return {success: false, error: "Room is full."};
-    if (room.roomState.status !== ROOM_STATUSES.LOBBY) return {success: false, error: "Game has already started."};
+    const usedIndexes = new Set(
+        room.roomState.players.map((player) => player.index)
+    );
+
+    const newIndex = Array.from(
+        { length: MAX_PLAYERS },
+        (_, index) => index
+    ).find((index) => !usedIndexes.has(index));
+
+    if (newIndex === undefined) {
+        return { success: false, error: "Room is full." };
+    }
     
     const teamId = (newIndex % 2 === 0) ? TEAM_IDS.ONE : TEAM_IDS.TWO;
 
@@ -97,11 +108,75 @@ export function getRoomGameState({userId, roomCode}) {
 }
 
 export function disconnectPlayer({socketId}) {
+    const room = getAllRooms().find((room) => 
+        room.roomState.players.some((player) => player.socketId === socketId)
+    );
+
+    if (!room) return { success: false };
+
+    const player = room.roomState.players.find((player) => 
+        player.socketId === socketId
+    );
+
+    const isHost = room.roomState.host === player.id;
+
+    if (room.roomState.status === ROOM_STATUSES.LOBBY) {
+
+        room.roomState.players = room.roomState.players.filter(
+            (player) => player.socketId !== socketId
+        );
+
+        if (room.roomState.players.length === 0) {
+            deleteRoom(room.roomState.roomCode);
+            return {
+                success: true,
+                roomCode: room.roomState.roomCode,
+            };
+        }
+
+        if (isHost) {
+            room.roomState.host = room.roomState.players[0].id;
+        }
+
+        saveRoom(room.roomState.roomCode, room);
+
+        return {
+            success: true,
+            roomCode: room.roomState.roomCode,
+        };
+    }
+
+    player.isConnected = false;
+
+    // not strictly necessary but just to be consistent
+    saveRoom(room.roomState.roomCode, room);
+
+    return {
+        success: true,
+        roomCode: room.roomState.roomCode,
+    };
 
 }
 
-export function reconnectPlayer({}) {
+export function reconnectPlayer({ userId, roomCode, socketId }) {
+    const roomResult = getValidRoom(roomCode);
+    if (!roomResult.success) return roomResult;
+
+    const { roomCode: normalizedRoomCode, room } = roomResult;
+
+    const player = room.roomState.players.find((player) => 
+        player.id === userId
+    );
+
+    if (!player) return { success: false, error: "You are not in this room." };
+
+    player.socketId = socketId;
+    player.isConnected = true;
     
+    // not strictly necessary but just to be consistent
+    saveRoom(normalizedRoomCode, room);
+
+    return { success: true, roomCode: normalizedRoomCode };
 }
 
 export function readyPlayer({userId, roomCode}) {
@@ -174,5 +249,76 @@ export function changeMatchRounds({userId, roomCode, roundsToWin}) {
     return { 
         success: true, 
         roomCode: normalizedRoomCode 
+    };
+}
+
+export function startMatch({userId, roomCode}) {
+    const roomResult = getValidRoom(roomCode);
+    if (!roomResult.success) return roomResult;
+
+    const { roomCode: normalizedRoomCode, room } = roomResult;
+
+    if (userId !== room.roomState.host) return {
+        success: false, 
+        error: "You are not the host."
+    };
+
+    if (room.roomState.status !== ROOM_STATUSES.LOBBY) return { 
+        success: false, 
+        error: "Game has already started." 
+    };
+
+    const player = room.roomState.players.find((player) => player.id === userId);
+    if (!player) return {
+        success: false, 
+        error: "You are not connected to this room."
+    };
+
+
+}
+
+export function leaveRoom({ userId, roomCode }) {
+    const roomResult = getValidRoom(roomCode);
+    if (!roomResult.success) return roomResult;
+
+    const { roomCode: normalizedRoomCode, room } = roomResult;
+    const player = room.roomState.players.find((player) => player.id === userId);
+
+    if (!player) return {
+        success: false, 
+        error: "You are not connected to this room."
+    };
+
+    const isHost = room.roomState.host === userId;
+
+    if (room.roomState.status === ROOM_STATUSES.LOBBY) {
+
+        room.roomState.players = room.roomState.players.filter(
+            (player) => player.id !== userId
+        );
+
+        if (room.roomState.players.length === 0) {
+            deleteRoom(room.roomState.roomCode);
+            return {
+                success: true,
+                roomCode: normalizedRoomCode,
+            };
+        }
+
+        if (isHost) {
+            room.roomState.host = room.roomState.players[0].id;
+        }
+
+        saveRoom(room.roomState.roomCode, room);
+
+        return {
+            success: true,
+            roomCode: normalizedRoomCode,
+        };
+    }
+
+    return {
+        success: false,
+        error: "Cannot leave ongoing game.",
     };
 }

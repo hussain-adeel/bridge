@@ -1,9 +1,19 @@
-import { createRoom, joinRoom, getRoomGameState } from "../services/roomService.js";
+import {
+    createRoom,
+    joinRoom,
+    getRoomGameState,
+    readyPlayer,
+    changeMatchRounds,
+    reconnectPlayer,
+    disconnectPlayer,
+    leaveRoom,
+} from "../services/roomService.js";
+import { emitRoomStateUpdated } from "./roomStateEmitter.js";
 import { supabase } from "../utils/supabase.js";
 import { SOCKET_EVENTS } from "../../../shared/gameConstants.js";
 
 export function registerRoomHandlers(io, socket) {
-    socket.on(SOCKET_EVENTS.CREATE_ROOM, async (_, callback) => {
+    socket.on(SOCKET_EVENTS.CREATE_ROOM, async (_, callback = () => {}) => {
         try {
             const { data: profile, error: profileError } = await supabase
                 .from("profiles")
@@ -17,22 +27,18 @@ export function registerRoomHandlers(io, socket) {
 
             socket.join(room.roomCode);
 
-            if (typeof callback === "function") {
-                callback({ 
-                    success: true, 
-                    roomCode: room.roomCode
-                });
-            }
+            callback({ 
+                success: true, 
+                roomCode: room.roomCode
+            });
         } 
         catch (err) {
             console.error("Error creating room:", err);
-            if (typeof callback === "function") {
-                callback({ success: false, error: err.message });
-            }
+            callback({ success: false, error: err.message });
         }
     });
 
-    socket.on(SOCKET_EVENTS.JOIN_ROOM, async ({ roomCode }, callback) => {
+    socket.on(SOCKET_EVENTS.JOIN_ROOM, async ({ roomCode } = {}, callback = () => {}) => {
         try {
             const { data: profile, error: profileError } = await supabase
                 .from("profiles")
@@ -45,50 +51,124 @@ export function registerRoomHandlers(io, socket) {
             const room = joinRoom({userId: socket.user.id, username: profile.username, socketId: socket.id, roomCode});
 
             if (!room.success) {
-                if (typeof callback === "function") callback(room);
+                callback(room);
                 return;
             }
 
             socket.join(room.roomCode);
+            emitRoomStateUpdated(io, room.roomCode);
 
-            if (typeof callback === "function") {
-                callback({ 
-                    success: true, 
-                    roomCode: room.roomCode
-                });
-            }
+            callback({ 
+                success: true, 
+                roomCode: room.roomCode
+            });
             
         } 
         catch (err) {
             console.error("Error joining room:", err);
-            if (typeof callback === "function") {
-                callback({ success: false, error: err.message });
-            }
+            callback({ success: false, error: err.message });
         }
     });
 
-    socket.on(SOCKET_EVENTS.GET_ROOM_STATE, async ({ roomCode }, callback) => {
+    socket.on(SOCKET_EVENTS.GET_ROOM_STATE, async ({ roomCode } = {}, callback = () => {}) => {
         try {
             const response = getRoomGameState({userId: socket.user.id, roomCode});
 
             if (!response.success) {
-                if (typeof callback === "function") callback(response);
+                callback(response);
                 return;
             }
 
-            if (typeof callback === "function") {
-                callback({ 
-                    success: true, 
-                    roomState: response.roomState,
-                    gameState: response.gameState
-                });
-            }
+            callback(response);
         }
         catch (err) {
             console.error("Error fetching room state:", err);
-            if (typeof callback === "function") {
-                callback({ success: false, error: err.message });
+            callback({ success: false, error: err.message });
+        }
+    });
+
+    socket.on(SOCKET_EVENTS.READY, ({ roomCode } = {}, callback = () => {}) => {
+        try {
+            const result = readyPlayer({userId: socket.user.id, roomCode});
+
+            if (!result.success) {
+                callback(result);
+                return;
             }
+
+            emitRoomStateUpdated(io, result.roomCode);
+            callback(result);
+        }
+        catch (err) {
+            console.error("Error updating player readiness:", err);
+            callback({ success: false, error: err.message });
+        }
+    });
+
+    socket.on(SOCKET_EVENTS.CHANGE_ROUNDS, ({ roomCode, roundsToWin } = {}, callback = () => {}) => {
+        try {
+            const result = changeMatchRounds({
+                userId: socket.user.id,
+                roomCode,
+                roundsToWin,
+            });
+
+            if (!result.success) {
+                callback(result);
+                return;
+            }
+
+            emitRoomStateUpdated(io, result.roomCode);
+            callback(result);
+        }
+        catch (err) {
+            console.error("Error changing match rounds:", err);
+            callback({ success: false, error: err.message });
+        }
+    });
+
+    socket.on(SOCKET_EVENTS.RECONNECT_TO_ROOM, ({ roomCode } = {}, callback = () => {}) => {
+        try {
+            const result = reconnectPlayer({
+                userId: socket.user.id,
+                roomCode,
+                socketId: socket.id,
+            });
+
+            if (!result.success) {
+                callback(result);
+                return;
+            }
+
+            socket.join(result.roomCode);
+            emitRoomStateUpdated(io, result.roomCode);
+            callback(result);
+        }
+        catch (err) {
+            console.error("Error reconnecting to room:", err);
+            callback({ success: false, error: err.message });
+        }
+    });
+
+    socket.on(SOCKET_EVENTS.LEAVE_ROOM, ({ roomCode } = {}, callback = () => {}) => {
+        try {
+            const result = leaveRoom({
+                userId: socket.user.id,
+                roomCode,
+            });
+
+            if (!result.success) {
+                callback(result);
+                return;
+            }
+
+            socket.leave(result.roomCode);
+            emitRoomStateUpdated(io, result.roomCode);
+            callback(result);
+        }
+        catch (err) {
+            console.error("Error reconnecting to room:", err);
+            callback({ success: false, error: err.message });
         }
     });
 }
