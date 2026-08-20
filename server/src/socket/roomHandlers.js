@@ -7,6 +7,7 @@ import {
     reconnectPlayer,
     disconnectPlayer,
     leaveRoom,
+    startMatch,
 } from "../services/roomService.js";
 import { emitRoomStateUpdated } from "./roomStateEmitter.js";
 import { supabase } from "../utils/supabase.js";
@@ -168,6 +169,27 @@ export function registerRoomHandlers(io, socket) {
         }
         catch (err) {
             console.error("Error reconnecting to room:", err);
+            callback({ success: false, error: err.message });
+        }
+    });
+
+    socket.on(SOCKET_EVENTS.START_MATCH, ({ roomCode } = {}, callback = () => {}) => {
+        try {
+            const result = startMatch({
+                userId: socket.user.id,
+                roomCode,
+            });
+
+            if (!result.success) {
+                callback(result);
+                return;
+            }
+
+            emitRoomStateUpdated(io, result.roomCode);
+            callback(result);
+        }
+        catch (err) {
+            console.error("Error starting match:", err);
             callback({ success: false, error: err.message });
         }
     });

@@ -1,7 +1,7 @@
 import { generateRoomCode } from "../utils/helpers.js";
 import { roomExists, saveRoom, getRoom, getAllRooms, deleteRoom } from "../game/state.js";
 import { createInitialGameState } from "../game/engine.js";
-import { DEFAULT_ROUNDS_TO_WIN, MAX_PLAYERS, ROOM_STATUSES, TEAM_IDS, MATCH_ROUND_OPTIONS } from "../../../shared/gameConstants.js";
+import { DEFAULT_ROUNDS_TO_WIN, MAX_PLAYERS, ROOM_STATUSES, TEAM_IDS, MATCH_ROUND_OPTIONS, GAME_PHASES } from "../../../shared/gameConstants.js";
 import { getPlayerGameState } from "./gameService.js";
 
 function getValidRoom(roomCode) {
@@ -258,6 +258,12 @@ export function startMatch({userId, roomCode}) {
 
     const { roomCode: normalizedRoomCode, room } = roomResult;
 
+    const player = room.roomState.players.find((player) => player.id === userId);
+    if (!player) return {
+        success: false, 
+        error: "You are not connected to this room."
+    };
+
     if (userId !== room.roomState.host) return {
         success: false, 
         error: "You are not the host."
@@ -268,13 +274,39 @@ export function startMatch({userId, roomCode}) {
         error: "Game has already started." 
     };
 
-    const player = room.roomState.players.find((player) => player.id === userId);
-    if (!player) return {
+    if (room.roomState.players.length !== MAX_PLAYERS) return { 
         success: false, 
-        error: "You are not connected to this room."
+        error: `You need exactly ${MAX_PLAYERS} players to start.` 
     };
 
+    const allPlayersConnected = room.roomState.players.every((player) => 
+        player.isConnected === true
+    );
 
+    if (!allPlayersConnected) return {
+        success: false,
+        error: "Not all players are connected."
+    }
+
+    const allPlayersReady = room.roomState.players.every((player) => 
+        player.isReady === true
+    );
+
+    if (!allPlayersReady) return {
+        success: false,
+        error: "Not all players are ready"
+    };
+
+    // inital game set up logic
+    // set to deal number 1
+    room.roomState.status = ROOM_STATUSES.IN_PROGRESS;
+    room.gameState = createInitialGameState();
+    room.gameState.gamePhase = GAME_PHASES.DEALING;
+    room.gameState.dealNumber = 1;
+
+    saveRoom(normalizedRoomCode, room);
+
+    return { success: true, roomCode: normalizedRoomCode }
 }
 
 export function leaveRoom({ userId, roomCode }) {
