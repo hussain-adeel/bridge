@@ -60,11 +60,21 @@ export default function BridgeGameBoard({
                 <div className="flex-1 flex min-w-max items-center justify-center p-2 md:p-4">
                     <div className="w-full min-h-125 grid grid-cols-[minmax(30px,150px)_1fr_minmax(30px,150px)] md:gap-4 max-w-7xl transition-all duration-500">
                         <div className="col-start-2 row-start-1 flex justify-center items-center">
-                            <PlayerAvatar player={partner} isTurn={isTurn(partner?.index ?? null)} gamePhase={gameState.gamePhase} />
+                            <PlayerAvatar
+                                player={partner}
+                                isTurn={isTurn(partner?.index ?? null)}
+                                gamePhase={gameState.gamePhase}
+                                tricksWon={gameState.playerTricks?.[partner?.index] ?? 0}
+                            />
                         </div>
 
                         <div className="col-start-1 row-start-2 flex justify-center items-center rotate-90 origin-center">
-                            <PlayerAvatar player={leftOpponent} isTurn={isTurn(leftOpponent?.index ?? null)} gamePhase={gameState.gamePhase} />
+                            <PlayerAvatar
+                                player={leftOpponent}
+                                isTurn={isTurn(leftOpponent?.index ?? null)}
+                                gamePhase={gameState.gamePhase}
+                                tricksWon={gameState.playerTricks?.[leftOpponent?.index] ?? 0}
+                            />
                         </div>
 
                         <div className="col-start-2 row-start-2 flex justify-center items-center">
@@ -101,7 +111,12 @@ export default function BridgeGameBoard({
                         </div>
 
                         <div className="col-start-3 row-start-2 flex justify-center items-center -rotate-90 origin-center">
-                            <PlayerAvatar player={rightOpponent} isTurn={isTurn(rightOpponent?.index ?? null)} gamePhase={gameState.gamePhase} />
+                            <PlayerAvatar
+                                player={rightOpponent}
+                                isTurn={isTurn(rightOpponent?.index ?? null)}
+                                gamePhase={gameState.gamePhase}
+                                tricksWon={gameState.playerTricks?.[rightOpponent?.index] ?? 0}
+                            />
                         </div>
 
                         <div className="col-start-2 row-start-3 flex flex-col justify-end items-center pb-4">
