@@ -16,12 +16,8 @@ export default function Bidding({currSuit, currTricks, gamePhase, auctionNumber,
     const safeGamePhase = gamePhase;
     const safeIsMyTurn = isMyTurn ?? false;
 
-    const titleText = (safeGamePhase) => { 
-        if (!safeGamePhase) return "LOADING DATA..."
-        if (safeGamePhase === GAME_PHASES.BIDDING && auctionNumber === AUCTION_NUMBERS.SECOND) return "SECOND AUCTION"
-        if (safeGamePhase === GAME_PHASES.BIDDING) return "PLACE BID"
-        return ""
-    }
+    const biddingPhase = auctionNumber === AUCTION_NUMBERS.SECOND ? 2 : 1;
+    const titleText = safeGamePhase === GAME_PHASES.BIDDING ? "BIDDING" : "LOADING DATA...";
 
     return (
 
@@ -30,7 +26,8 @@ export default function Bidding({currSuit, currTricks, gamePhase, auctionNumber,
         >
 
             <div className="text-center cursor-default">
-                <span className="text-white font-extrabold text-3xl">{titleText(safeGamePhase)}</span> <br />
+                <span className="text-white font-extrabold text-3xl">{titleText}</span>
+                <span className="mt-1 block text-sm font-bold uppercase tracking-[0.2em] text-slate-400">Phase {biddingPhase} of 2</span>
                 {safeIsMyTurn ? <span className="text-green-300 font-extrabold  text-l">Your Turn!</span> : <span className="text-red-300 font-extrabold font-sans text-l">Waiting For Others...</span>}
                 
             </div>
