@@ -40,16 +40,16 @@ export default function Bidding({currSuit, currTricks, gamePhase, auctionNumber,
 
                     <div key={suit} className="flex flex-col gap-2">
                         <span className="cursor-default">{suit}</span>
-                        {BID_VALUES.map((rank) => {
-                            const isDisabled = !safeIsMyTurn || rank <= safeCurrTricks;
-                            const isCurrentBid = rank === safeCurrTricks && suit === safeCurrSuit;
-                            const isUserSelected = stagedBid?.suit === suit && stagedBid?.rank === rank;
+                        {BID_VALUES.map((tricks) => {
+                            const isDisabled = !safeIsMyTurn || tricks <= safeCurrTricks;
+                            const isCurrentBid = tricks === safeCurrTricks && suit === safeCurrSuit;
+                            const isUserSelected = stagedBid?.suit === suit && stagedBid?.tricks === tricks;
                             
                             return (
                                 <button 
-                                    key={`${suit}-${rank}`}
+                                    key={`${suit}-${tricks}`}
                                     disabled={isDisabled}
-                                    onClick={() => isUserSelected ? setStagedBid(null) : setStagedBid({suit, rank})}
+                                    onClick={() => isUserSelected ? setStagedBid(null) : setStagedBid({ suit, tricks })}
                                     className={`
                                             min-h-11 touch-manipulation active:scale-95 py-2 rounded font-bold transition-all duration-150
                                             
@@ -62,7 +62,7 @@ export default function Bidding({currSuit, currTricks, gamePhase, auctionNumber,
                                                 : "text-white border border-green-500 bg-slate-700 hover:bg-green-700 active:bg-green-600 cursor-pointer disabled:border-red-500 disabled:bg-slate-700 disabled:text-slate-600 disabled:cursor-not-allowed"}
                                         `}
                                 >
-                                        {rank}
+                                        {tricks}
                                 </button>
                             );
                         })}
