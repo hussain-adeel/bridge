@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
-import { supabase } from "./supabase";
+import { supabase } from "./supabase.js";
 import { SOCKET_EVENTS } from "../../../shared/gameConstants.js";
 
 const URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3001";
