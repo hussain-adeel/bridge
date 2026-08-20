@@ -17,6 +17,10 @@ export const socket = io(URL, {
     }
 });
 
+socket.on("disconnect", (reason) => {
+    console.warn("Socket disconnected:", reason);
+});
+
 socket.on("connect_error", (err) => {
     console.error("Socket Connection Failed:", err.message);
 });
