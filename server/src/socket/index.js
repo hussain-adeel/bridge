@@ -10,8 +10,8 @@ export function setupSockets(io) {
         registerRoomHandlers(io, socket);
         registerGameHandlers(io, socket);
 
-        socket.on("disconnect", () => {
-            console.log(`[Bridge Server] User disconnected: ${socket.id}`);
+        socket.on("disconnect", (reason) => {
+            console.log(`[Bridge Server] User disconnected: ${socket.id}`, reason);
             
             const response = disconnectPlayer({ socketId: socket.id })
 
