@@ -1,29 +1,28 @@
-
-import { supabase } from "../utils/supabase.js";
+import { SOCKET_EVENTS } from "../../../shared/gameConstants.js";
+import { emitRoomStateUpdated } from "./roomStateEmitter.js";
+import { bid, bidPass } from "../services/gameService.js";
 
 export function registerGameHandlers(io, socket) {
-    // socket.on(SOCKET_EVENTS.READ, async ({ roomCode }, callback) => {
-    //     try {
-    //         const response = getRoomGameState({userId: socket.user.id, roomCode});
+    socket.on(SOCKET_EVENTS.BID, async ({ roomCode, tricks, suit } = {}, callback = () => {}) => {
+        try {
+            const result = bid({
+                userId: socket.user.id,
+                roomCode,
+                tricks,
+                suit,
+            });
 
-    //         if (!response.success) {
-    //             if (typeof callback === "function") callback(response);
-    //             return;
-    //         }
+            if (!result.success) {
+                callback(result);
+                return;
+            }
 
-    //         if (typeof callback === "function") {
-    //             callback({ 
-    //                 success: true, 
-    //                 roomState: response.roomState,
-    //                 gameState: response.gameState
-    //             });
-    //         }
-    //     }
-    //     catch (err) {
-    //         console.error("Error fetching room state:", err);
-    //         if (typeof callback === "function") {
-    //             callback({ success: false, error: err.message });
-    //         }
-    //     }
-    // });
+            emitRoomStateUpdated(io, result.roomCode);
+            callback(result);
+        }
+        catch (err) {
+            console.error("Error placing bid:", err);
+            callback({ success: false, error: err.message });
+        }
+    })
 }

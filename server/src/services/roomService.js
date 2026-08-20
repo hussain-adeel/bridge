@@ -1,20 +1,9 @@
 import { generateRoomCode } from "../utils/helpers.js";
 import { roomExists, saveRoom, getRoom, getAllRooms, deleteRoom } from "../game/state.js";
 import { createInitialGameState } from "../game/engine.js";
-import { DEFAULT_ROUNDS_TO_WIN, MAX_PLAYERS, ROOM_STATUSES, TEAM_IDS, MATCH_ROUND_OPTIONS, GAME_PHASES } from "../../../shared/gameConstants.js";
-import { getPlayerGameState } from "./gameService.js";
-
-function getValidRoom(roomCode) {
-    const normalizedRoomCode = roomCode?.trim().toUpperCase();
-
-    if (!normalizedRoomCode || !roomExists(normalizedRoomCode)) return { success: false, error: "Room does not exist" };
-
-    return {
-        success: true,
-        roomCode: normalizedRoomCode,
-        room: getRoom(normalizedRoomCode)
-    };
-}
+import { DEFAULT_ROUNDS_TO_WIN, MAX_PLAYERS, ROOM_STATUSES, TEAM_IDS, MATCH_ROUND_OPTIONS, GAME_PHASES, DEAL_NUMBERS } from "../../../shared/gameConstants.js";
+import { getPlayerGameState, dealCurrentPacket } from "./gameService.js";
+import { getValidRoom } from "../utils/roomUtils.js";
 
 export function createRoom({userId, username, socketId}) {
     const roomCode = generateRoomCode();
@@ -302,7 +291,14 @@ export function startMatch({userId, roomCode}) {
     room.roomState.status = ROOM_STATUSES.IN_PROGRESS;
     room.gameState = createInitialGameState();
     room.gameState.gamePhase = GAME_PHASES.DEALING;
-    room.gameState.dealNumber = 1;
+    room.gameState.dealNumber = DEAL_NUMBERS.FIRST;
+
+    const dealResult = dealCurrentPacket(
+        room.gameState,
+        room.roomState.players
+    );
+
+    if (!dealResult.success) return dealResult;
 
     saveRoom(normalizedRoomCode, room);
 
