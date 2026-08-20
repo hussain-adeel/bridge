@@ -11,6 +11,7 @@ import {
 } from "../../../shared/gameConstants.js";
 import { createDeck, shuffleDeck } from "../game/engine.js";
 import { getValidRoom } from "../utils/roomUtils.js";
+import { saveRoom } from "../game/state.js";
 
 export function getPlayerGameState(gameState, userId) {
     const {hands, remainingDeck, ...publicGameState} = gameState;
@@ -62,11 +63,19 @@ export function dealCurrentPacket(gameState, players) {
         case DEAL_NUMBERS.FIRST:
             gameState.gamePhase = GAME_PHASES.BIDDING;
             gameState.auctionNumber = AUCTION_NUMBERS.FIRST;
+            gameState.biddingData = {
+                consecutivePasses: 0,
+                hasBidThisAuction: false,
+            };
 
             break;
         case DEAL_NUMBERS.SECOND:
             gameState.gamePhase = GAME_PHASES.BIDDING;
             gameState.auctionNumber = AUCTION_NUMBERS.SECOND;
+            gameState.biddingData = {
+                consecutivePasses: 0,
+                hasBidThisAuction: false,
+            };
 
             break;
         case DEAL_NUMBERS.FINAL:
@@ -88,8 +97,6 @@ export function dealCurrentPacket(gameState, players) {
 
     return {
         success: true,
-        gameState,
-        players,
     }
 }
 
@@ -108,13 +115,13 @@ export function bid({ userId, roomCode, tricks, suit }) {
 
     if (room.gameState.gamePhase !== GAME_PHASES.BIDDING) return {
         success: false,
-        error: `Cannot bid when in phase: ${room.gameState.gamePhase}`
+        error: `Cannot pass or bid when in phase: ${room.gameState.gamePhase}`
     }
 
     if (player.index !== room.gameState.activePlayerIndex) {
         return {
             success: false,
-            error: "It is not your turn to bid.",
+            error: "It is not your turn to pass or bid.",
         };
     }
 
@@ -148,8 +155,10 @@ export function bid({ userId, roomCode, tricks, suit }) {
     room.gameState.activePlayerIndex = (player.index + 1) % MAX_PLAYERS;
     room.gameState.biddingData = {
         consecutivePasses: 0,
+        hasBidThisAuction: true,
     }
 
+    saveRoom(normalizedRoomCode, room);
 
     return {
         success: true,
@@ -168,4 +177,58 @@ export function bidPass({ userId, roomCode }) {
         success: false, 
         error: "You are not connected to this room."
     };
+
+    if (room.gameState.gamePhase !== GAME_PHASES.BIDDING) return {
+        success: false,
+        error: `Cannot pass or bid when in phase: ${room.gameState.gamePhase}`
+    }
+
+    if (player.index !== room.gameState.activePlayerIndex) {
+        return {
+            success: false,
+            error: "It is not your turn to pass or bid.",
+        };
+    }
+
+    // ensure some contract exists
+    if (room.gameState.contract.tricks === 0) return {
+        success: false,
+        error: "You cannot pass as the starting player."
+    }
+
+    room.gameState.biddingData.consecutivePasses += 1;
+
+    const passesRequired = room.gameState.biddingData.hasBidThisAuction
+        ? MAX_PLAYERS - 1
+        : MAX_PLAYERS;
+
+    if (room.gameState.biddingData.consecutivePasses >= passesRequired) {
+        room.gameState.gamePhase = GAME_PHASES.DEALING;
+        room.gameState.dealNumber += 1;
+        room.gameState.biddingData = {
+            consecutivePasses: 0,
+            hasBidThisAuction: false,
+        };
+        room.gameState.activePlayerIndex = room.gameState.contract.declarerIndex;
+        
+        const dealResult = dealCurrentPacket(room.gameState, room.roomState.players);
+
+        if (!dealResult.success) return dealResult;
+
+        saveRoom(normalizedRoomCode, room);
+
+        return {
+            success: true,
+            roomCode: normalizedRoomCode
+        }
+    }
+
+    room.gameState.activePlayerIndex = (player.index + 1) % MAX_PLAYERS;
+
+    saveRoom(normalizedRoomCode, room);
+
+    return {
+        success: true,
+        roomCode: normalizedRoomCode
+    }
 }

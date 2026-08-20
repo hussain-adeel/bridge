@@ -25,4 +25,25 @@ export function registerGameHandlers(io, socket) {
             callback({ success: false, error: err.message });
         }
     })
+
+    socket.on(SOCKET_EVENTS.BID_PASS, async ({ roomCode } = {}, callback = () => {}) => {
+        try {
+            const result = bidPass({
+                userId: socket.user.id,
+                roomCode,
+            });
+
+            if (!result.success) {
+                callback(result);
+                return;
+            }
+
+            emitRoomStateUpdated(io, result.roomCode);
+            callback(result);
+        }
+        catch (err) {
+            console.error("Error passing bid:", err);
+            callback({ success: false, error: err.message });
+        }
+    })
 }

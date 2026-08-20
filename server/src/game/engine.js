@@ -20,7 +20,8 @@ export function createInitialGameState() {
         remainingDeck: [],
 
         biddingData: {
-            history: []
+            consecutivePasses: 0,
+            hasBidThisAuction: false,
         },
 
         contract: {
