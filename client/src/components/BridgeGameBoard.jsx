@@ -133,7 +133,7 @@ export default function BridgeGameBoard({
             </div>
 
             {isGamePaused && (
-                <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-6 backdrop-blur-sm">
+                <div className="absolute inset-0 z-[200] flex items-center justify-center bg-slate-950/75 p-6 backdrop-blur-sm">
                     <div className="w-full max-w-md rounded-2xl border border-amber-300/30 bg-slate-900 p-8 text-center shadow-2xl">
                         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-amber-300/30 bg-amber-300/10 text-3xl text-amber-300">
                             {"\u23F8"}
