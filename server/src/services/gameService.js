@@ -9,6 +9,8 @@ import {
     GAME_PHASES,
     MAX_PLAYERS,
     SUITS,
+    TEAM_IDS,
+    TRICKS_PER_ROUND,
 } from "../../../shared/gameConstants.js";
 import { createDeck, shuffleDeck, trickWinner } from "../game/engine.js";
 import { getValidRoom } from "../utils/roomUtils.js";
@@ -265,7 +267,7 @@ export function playCard({ userId, roomCode, cardId }) {
         error: "Error getting player hand."
     }
 
-    const playerCard = hand.find((card) => card.id === cardId)
+    const playerCard = playerHand.find((card) => card.id === cardId)
 
     if (!playerCard) return {
         success: false,
@@ -274,9 +276,9 @@ export function playCard({ userId, roomCode, cardId }) {
 
     if (room.gameState.playingData.ledSuit === null) room.gameState.playingData.ledSuit = playerCard.suit;
 
-    const playerHasLedSuit = hand.some((card) => card.suit === ledSuit);
+    const playerHasLedSuit = playerHand.some((card) => card.suit === room.gameState.playingData.ledSuit);
 
-    if (playerHasLedSuit && playerCard.suit !== ledSuit) return {
+    if (playerHasLedSuit && playerCard.suit !== room.gameState.playingData.ledSuit) return {
         success: false,
         error: "You must play the lead suit if you posses it."
     }
@@ -284,12 +286,12 @@ export function playCard({ userId, roomCode, cardId }) {
     // else we let them play it
 
     // first, remove from player's hand
-    room.gameState.hands[player.id] = room.gameState.hands[player.id].filter((card) => card.id !== cardId);
+    playerHand = playerHand.filter((card) => card.id !== cardId);
 
     // add to played cards on table
     room.gameState.playingData.cardsOnTable.push({
         ...playerCard,
-        playerIndex = player.index,
+        playerIndex: player.index,
     });
 
     if (room.gameState.playingData.cardsOnTable.length >= CARDS_PER_TRICK) {
@@ -300,8 +302,28 @@ export function playCard({ userId, roomCode, cardId }) {
         const winningPlayer = room.roomState.players.find((player) => player.index === winningIndex);
         
         // update score
+        room.gameState.currentHandTricks[winningPlayer.teamId] += 1;
+        room.gameState.playerTricks[winningIndex] += 1;
+
         // clear cardsOnTable
+        room.gameState.playingData.cardsOnTable = [];
+
         // advance to next round or if match over, do that
+        // check if either team has reached target
+        const bidMet = room.gameState.currentHandTricks[room.gameState.contract.teamId] >= room.gameState.contract.tricks;
+
+        const otherTeamId =
+            room.gameState.contract.teamId === TEAM_IDS.ONE
+                ? TEAM_IDS.TWO
+                : TEAM_IDS.ONE;
+        const bidImpossible = room.gameState.currentHandTricks[otherTeamId] >= ((TRICKS_PER_ROUND + 1) - room.gameState.contract.tricks);
+
+        if (bidMet) {
+
+        }
+        if (bidImpossible) {
+
+        }
     }
     
     return {
@@ -309,3 +331,4 @@ export function playCard({ userId, roomCode, cardId }) {
         roomCode: normalizedRoomCode
     }
 }
+
