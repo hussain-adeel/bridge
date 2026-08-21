@@ -1,5 +1,5 @@
 import { useAuth } from './hooks/useAuth';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { socket } from './utils/socket';
 import { SOCKET_EVENTS } from '../../shared/gameConstants.js';
@@ -21,10 +21,12 @@ function ProtectedRoute({children}) {
 
 function AppRoutes() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
 
   useEffect(() => {
-    if (!user) return undefined;
+    const shouldReconnectToRoom = location.pathname === "/home" || location.pathname.startsWith("/room/");
+    if (!user || !shouldReconnectToRoom) return undefined;
 
     const reconnectToRoom = () => {
       const savedSession = localStorage.getItem('bridge_session');
@@ -61,7 +63,7 @@ function AppRoutes() {
     return () => {
       socket.off("connect", reconnectToRoom);
     };
-  }, [navigate, user]);
+  }, [location.pathname, navigate, user]);
 
   return (
       <Routes>
