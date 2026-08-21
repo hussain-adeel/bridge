@@ -25,6 +25,18 @@ socket.on("connect_error", (err) => {
     console.error("Socket Connection Failed:", err.message);
 });
 
+socket.io.on("reconnect_attempt", () => {
+    console.log("Trying to reconnect...");
+});
+
+socket.io.on("reconnect", () => {
+    console.log("Socket reconnected:", socket.id);
+});
+
+socket.io.on("reconnect_failed", () => {
+    console.error("Socket reconnection failed.");
+});
+
 // Utility Function(s)
 export function emitAsync(eventName, data) {
     return new Promise((resolve, reject) => {
