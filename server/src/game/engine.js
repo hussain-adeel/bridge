@@ -84,5 +84,28 @@ export function shuffleDeck(deck) {
 }
 
 export function trickWinner(cardsOnTable, ledSuit, trumpSuit) {
-    
+    let winningCard = cardsOnTable[0];
+
+    for (const card of cardsOnTable.slice(1)) {
+        const cardIsTrump = card.suit === trumpSuit;
+        const winnerIsTrump = winningCard.suit === trumpSuit;
+        const cardIsLeadSuit = card.suit === ledSuit;
+        const winnerIsLeadSuit = winningCard.suit === ledSuit;
+
+        if (!cardIsTrump && !cardIsLeadSuit) continue;
+
+        if (cardIsTrump && !winnerIsTrump) {
+            winningCard = card;
+            continue;
+        }
+        if (cardIsLeadSuit && winnerIsTrump) continue;
+        if (cardIsTrump && winnerIsTrump || cardIsLeadSuit && winnerIsLeadSuit) {
+            const cardRank = RANKS.indexOf(card.rank);
+            const winnerRank = RANKS.indexOf(winningCard.rank);
+
+            if (cardRank > winnerRank) winningCard = card;
+        }
+    }
+
+    return winningCard;
 }

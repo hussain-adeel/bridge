@@ -286,7 +286,7 @@ export function playCard({ userId, roomCode, cardId }) {
     // else we let them play it
 
     // first, remove from player's hand
-    playerHand = playerHand.filter((card) => card.id !== cardId);
+    room.gameState.hands[player.id] = playerHand.filter((card) => card.id !== cardId);
 
     // add to played cards on table
     room.gameState.playingData.cardsOnTable.push({
@@ -307,25 +307,47 @@ export function playCard({ userId, roomCode, cardId }) {
 
         // clear cardsOnTable
         room.gameState.playingData.cardsOnTable = [];
-
-        // advance to next round or if match over, do that
-        // check if either team has reached target
-        const bidMet = room.gameState.currentHandTricks[room.gameState.contract.teamId] >= room.gameState.contract.tricks;
+        room.gameState.playingData.ledSuit = null;
+        room.gameState.activePlayerIndex = winningIndex;
+        room.gameState.trickNumber += 1;
 
         const otherTeamId =
             room.gameState.contract.teamId === TEAM_IDS.ONE
                 ? TEAM_IDS.TWO
                 : TEAM_IDS.ONE;
-        const bidImpossible = room.gameState.currentHandTricks[otherTeamId] >= ((TRICKS_PER_ROUND + 1) - room.gameState.contract.tricks);
 
-        if (bidMet) {
+        // advance to next round or if match over, do that
+        // check if either team has reached target
+        const roundOver = 
+            (room.gameState.currentHandTricks[room.gameState.contract.teamId] >= room.gameState.contract.tricks) ||
+            room.gameState.currentHandTricks[otherTeamId] >= ((TRICKS_PER_ROUND + 1) - room.gameState.contract.tricks);
 
+
+        if (roundOver) {
+            room.gameState.matchScore[winningPlayer.teamId] += 1;
+            
+            const matchWon =
+                room.gameState.matchScore[winningPlayer.teamId] >= room.roomState.roundsToWin;
+
+            room.gameState.gamePhase = matchWon
+                ? GAME_PHASES.MATCH_END
+                : GAME_PHASES.ROUND_END;
+
+            room.gameState.roundWinnerTeamId = winningPlayer.teamId;
+            room.gameState.matchWinnerTeamId = matchWon ? winningPlayer.teamId : null;
+            room.gameState.roundEndsAt = Date.now() + 7000;
         }
-        if (bidImpossible) {
 
+        saveRoom(normalizedRoomCode, room);
+        return {
+            success: true,
+            roomCode: normalizedRoomCode
         }
     }
-    
+
+    // just advance activePlayerIndex
+    room.gameState.activePlayerIndex = (player.index + 1) % MAX_PLAYERS;
+    saveRoom(normalizedRoomCode, room);
     return {
         success: true,
         roomCode: normalizedRoomCode
