@@ -2,6 +2,7 @@ import {
     AUCTION_NUMBERS,
     BID_VALUES,
     CARDS_PER_PLAYER,
+    CARDS_PER_TRICK,
     DEAL_CARD_COUNTS,
     DEAL_NUMBERS,
     FIRST_TRICK_NUMBER,
@@ -9,7 +10,7 @@ import {
     MAX_PLAYERS,
     SUITS,
 } from "../../../shared/gameConstants.js";
-import { createDeck, shuffleDeck } from "../game/engine.js";
+import { createDeck, shuffleDeck, trickWinner } from "../game/engine.js";
 import { getValidRoom } from "../utils/roomUtils.js";
 import { saveRoom } from "../game/state.js";
 
@@ -227,6 +228,82 @@ export function bidPass({ userId, roomCode }) {
 
     saveRoom(normalizedRoomCode, room);
 
+    return {
+        success: true,
+        roomCode: normalizedRoomCode
+    }
+}
+
+export function playCard({ userId, roomCode, cardId }) {
+    const roomResult = getValidRoom(roomCode);
+    if (!roomResult.success) return roomResult;
+
+    const { roomCode: normalizedRoomCode, room } = roomResult;
+
+    const player = room.roomState.players.find((player) => player.id === userId);
+    if (!player) return {
+        success: false, 
+        error: "You are not connected to this room."
+    };
+
+    if (room.gameState.gamePhase !== GAME_PHASES.PLAYING) return {
+        success: false,
+        error: `Cannot play card when in phase: ${room.gameState.gamePhase}`
+    }
+
+    if (player.index !== room.gameState.activePlayerIndex) {
+        return {
+            success: false,
+            error: "It is not your turn to play a card.",
+        };
+    }
+
+    const playerHand = room.gameState.hands[player.id];
+
+    if (!playerHand) return {
+        success: false,
+        error: "Error getting player hand."
+    }
+
+    const playerCard = hand.find((card) => card.id === cardId)
+
+    if (!playerCard) return {
+        success: false,
+        error: "You do not have this card."
+    }
+
+    if (room.gameState.playingData.ledSuit === null) room.gameState.playingData.ledSuit = playerCard.suit;
+
+    const playerHasLedSuit = hand.some((card) => card.suit === ledSuit);
+
+    if (playerHasLedSuit && playerCard.suit !== ledSuit) return {
+        success: false,
+        error: "You must play the lead suit if you posses it."
+    }
+
+    // else we let them play it
+
+    // first, remove from player's hand
+    room.gameState.hands[player.id] = room.gameState.hands[player.id].filter((card) => card.id !== cardId);
+
+    // add to played cards on table
+    room.gameState.playingData.cardsOnTable.push({
+        ...playerCard,
+        playerIndex = player.index,
+    });
+
+    if (room.gameState.playingData.cardsOnTable.length >= CARDS_PER_TRICK) {
+        // determine trick winner
+        const winningCard = trickWinner(room.gameState.playingData.cardsOnTable, room.gameState.playingData.ledSuit, room.gameState.contract.suit);
+
+        const winningIndex = winningCard.playerIndex;
+        const winningPlayer = room.roomState.players.find((player) => player.index === winningIndex);
+        
+        // update score
+        // clear cardsOnTable
+        // advance to next round or if match over, do that
+    }
+    
     return {
         success: true,
         roomCode: normalizedRoomCode

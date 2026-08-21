@@ -82,3 +82,7 @@ export function shuffleDeck(deck) {
 
     return shuffledDeck;
 }
+
+export function trickWinner(cardsOnTable, ledSuit, trumpSuit) {
+    
+}
