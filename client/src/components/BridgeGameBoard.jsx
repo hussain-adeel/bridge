@@ -40,6 +40,7 @@ export default function BridgeGameBoard({
     const tricksWon = myIndex === null ? 0 : gameState.playerTricks?.[myIndex] ?? 0;
     const isRoundOrMatchEnd = gameState.gamePhase === GAME_PHASES.ROUND_END || gameState.gamePhase === GAME_PHASES.MATCH_END;
     const matchOver = gameState.gamePhase === GAME_PHASES.MATCH_END;
+    const endTime = matchOver ? gameState.matchEndsAt : gameState.roundEndsAt;
     const teamMatchScore = gameState.matchScore?.[myTeamId] ?? 0;
     const enemyMatchScore = gameState.matchScore?.[enemyTeamId] ?? 0;
     const cardsInCurrentDeal = DEAL_CARD_COUNTS[gameState.dealNumber] ?? 0;
@@ -96,11 +97,12 @@ export default function BridgeGameBoard({
                                 </div>
                             ) : isRoundOrMatchEnd ? (
                                 <End
-                                    key={`${gameState.gamePhase}-${gameState.roundEndsAt ?? ""}`}
+                                    key={`${gameState.gamePhase}-${endTime ?? ""}`}
                                     myTeamId={myTeamId}
                                     roundWinnerTeamId={gameState.roundWinnerTeamId}
                                     matchWinnerTeamId={gameState.matchWinnerTeamId}
                                     roundEndsAt={gameState.roundEndsAt}
+                                    matchEndsAt={gameState.matchEndsAt}
                                     teamRoundScore={teamScore}
                                     enemyRoundScore={enemyScore}
                                     matchOver={matchOver}

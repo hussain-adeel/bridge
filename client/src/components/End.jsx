@@ -1,26 +1,22 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { useGameActions } from "../hooks/useGameActions.js";
 
-export default function End({myTeamId, roundWinnerTeamId, matchWinnerTeamId, roundEndsAt, teamRoundScore, enemyRoundScore, matchOver, teamMatchScore, enemyMatchScore}) {
+export default function End({myTeamId, roundWinnerTeamId, matchWinnerTeamId, roundEndsAt, matchEndsAt, teamRoundScore, enemyRoundScore, matchOver, teamMatchScore, enemyMatchScore}) {
 
     const [fillWidth, setFillWidth] = useState(0);
     const [remainingRoundTime, setRemainingRoundTime] = useState(0);
-    const { code: roomCode } = useParams();
-    const { onReturnToLobby } = useGameActions(roomCode);
+    const safeMatchOver = matchOver ?? false;
+    const endTimeValue = safeMatchOver ? matchEndsAt : roundEndsAt;
 
     useEffect(() => {
-        if (matchOver) return undefined;
-
         const animationFrame = requestAnimationFrame(() => {
-            const endTime = new Date(roundEndsAt).getTime();
+            const endTime = new Date(endTimeValue).getTime();
             const remainingTime = Number.isFinite(endTime) ? Math.max(endTime - Date.now(), 0) : 0;
             setRemainingRoundTime(remainingTime);
             setFillWidth(100);
         });
 
         return () => cancelAnimationFrame(animationFrame);
-    }, [matchOver, roundEndsAt]);
+    }, [endTimeValue]);
 
     // Round Details
     const safeTeamWonRound = roundWinnerTeamId === myTeamId;
@@ -28,7 +24,6 @@ export default function End({myTeamId, roundWinnerTeamId, matchWinnerTeamId, rou
     const safeEnemyRoundScore = enemyRoundScore ?? 0;
 
     // Match Details
-    const safeMatchOver = matchOver ?? false;
     const safeTeamMatchScore = teamMatchScore ?? 0;
     const safeEnemyMatchScore = enemyMatchScore ?? 0;
     const safeTeamWonMatch = matchWinnerTeamId === myTeamId;
@@ -67,14 +62,6 @@ export default function End({myTeamId, roundWinnerTeamId, matchWinnerTeamId, rou
                     <span className="text-enemy">{safeMatchOver ? safeEnemyRoundScore : safeEnemyMatchScore}</span>
                 </h2>
                 <div className="pt-12">
-                    {safeMatchOver ? (
-                    <button 
-                        className="w-full h-12 bg-slate-800 hover:bg-slate-700 rounded border border-slate-600 shadow-inner cursor-pointer text-white font-bold uppercase tracking-wider text-sm drop-shadow-md"
-                        onClick={onReturnToLobby}
-                    >
-                        Return to Lobby
-                    </button> 
-                    ) : (
                     <div className="relative w-full h-12 bg-slate-800 rounded flex items-center justify-center overflow-hidden border border-slate-600 shadow-inner cursor-default">
                     
                     <div 
@@ -86,13 +73,10 @@ export default function End({myTeamId, roundWinnerTeamId, matchWinnerTeamId, rou
                     ></div>
 
                     <span className="relative z-10 text-white font-bold uppercase tracking-wider text-sm drop-shadow-md">
-                        Starting next round...
+                        {safeMatchOver ? "Returning to lobby..." : "Starting next round..."}
                     </span>
                     
                     </div>
-                    )};
-                    
-                    
                 </div>
             </div>
         </div>
