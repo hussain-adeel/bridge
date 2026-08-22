@@ -55,6 +55,8 @@ export const MATCH_ROUND_OPTIONS = [1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 5
 export const DEFAULT_ROUNDS_TO_WIN = MATCH_ROUND_OPTIONS[0];
 export const FIRST_TRICK_NUMBER = 1;
 export const CARDS_PER_TRICK = 4;
+export const ROUND_END_DURATION_MS = 7000;
+export const MATCH_END_DURATION_MS = 7000;
 
 export const TEAM_IDS = {
     ONE: "team_1",

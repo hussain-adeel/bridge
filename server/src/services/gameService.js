@@ -5,14 +5,18 @@ import {
     CARDS_PER_TRICK,
     DEAL_CARD_COUNTS,
     DEAL_NUMBERS,
+    DEFAULT_ROUNDS_TO_WIN,
     FIRST_TRICK_NUMBER,
     GAME_PHASES,
+    MATCH_END_DURATION_MS,
     MAX_PLAYERS,
+    ROUND_END_DURATION_MS,
     SUITS,
     TEAM_IDS,
     TRICKS_PER_ROUND,
+    ROOM_STATUSES,
 } from "../../../shared/gameConstants.js";
-import { createDeck, shuffleDeck, trickWinner } from "../game/engine.js";
+import { createDeck, shuffleDeck, trickWinner, createInitialGameState, getNextBidderIndex } from "../game/engine.js";
 import { getValidRoom } from "../utils/roomUtils.js";
 import { saveRoom } from "../game/state.js";
 
@@ -304,12 +308,12 @@ export function playCard({ userId, roomCode, cardId }) {
         // update score
         room.gameState.currentHandTricks[winningPlayer.teamId] += 1;
         room.gameState.playerTricks[winningIndex] += 1;
+        room.gameState.lastTrickWinnerIndex = winningIndex;
 
         // clear cardsOnTable
         room.gameState.playingData.cardsOnTable = [];
         room.gameState.playingData.ledSuit = null;
         room.gameState.activePlayerIndex = winningIndex;
-        room.gameState.trickNumber += 1;
 
         const otherTeamId =
             room.gameState.contract.teamId === TEAM_IDS.ONE
@@ -332,12 +336,24 @@ export function playCard({ userId, roomCode, cardId }) {
             room.gameState.gamePhase = matchWon
                 ? GAME_PHASES.MATCH_END
                 : GAME_PHASES.ROUND_END;
-
+            room.gameState.trickNumber = 0;
             room.gameState.roundWinnerTeamId = winningPlayer.teamId;
             room.gameState.matchWinnerTeamId = matchWon ? winningPlayer.teamId : null;
-            room.gameState.roundEndsAt = Date.now() + 7000;
-        }
+            room.gameState.roundEndsAt = Date.now() + ROUND_END_DURATION_MS;
+            if (room.gameState.gamePhase === GAME_PHASES.MATCH_END) room.gameState.matchEndsAt = Date.now() + MATCH_END_DURATION_MS;
 
+            saveRoom(normalizedRoomCode, room);
+            return {
+                success: true,
+                roomCode: normalizedRoomCode,
+                shouldStartNextRound: !matchWon,
+                shouldReturnToLobby: matchWon
+            }
+        }
+        else {
+            room.gameState.trickNumber += 1;
+        }
+        
         saveRoom(normalizedRoomCode, room);
         return {
             success: true,
@@ -352,5 +368,80 @@ export function playCard({ userId, roomCode, cardId }) {
         success: true,
         roomCode: normalizedRoomCode
     }
+}
+
+export function startNextRound({ roomCode }) {
+    const roomResult = getValidRoom(roomCode);
+    if (!roomResult.success) return roomResult;
+
+    const { roomCode: normalizedRoomCode, room } = roomResult;
+
+    if (room.gameState.gamePhase !== GAME_PHASES.ROUND_END) {
+        return { 
+            success: false, 
+            error: "Round is not ready to advance." 
+        };
+    }
+
+    const nextRoundNumber = room.gameState.roundNumber + 1;
+    const matchScore = room.gameState.matchScore;
+    const activePlayerIndex = getNextBidderIndex(
+        room.roomState.players,
+        room.gameState.playerTricks,
+        room.gameState.roundWinnerTeamId,
+        room.gameState.lastTrickWinnerIndex
+    )
+
+    room.gameState = createInitialGameState();
+    room.gameState.roundNumber = nextRoundNumber;
+    room.gameState.matchScore = matchScore;
+    room.gameState.gamePhase = GAME_PHASES.DEALING;
+    room.gameState.dealNumber = DEAL_NUMBERS.FIRST;
+    room.gameState.activePlayerIndex = activePlayerIndex;
+
+    const dealResult = dealCurrentPacket(
+        room.gameState,
+        room.roomState.players
+    );
+
+    if (!dealResult.success) return dealResult;
+
+    saveRoom(normalizedRoomCode, room);
+
+    return {
+        success: true,
+        roomCode: normalizedRoomCode
+    }
+}
+
+export function returnRoomToLobby({ roomCode }) {
+    const roomResult = getValidRoom(roomCode);
+    if (!roomResult.success) return roomResult;
+
+    const { roomCode: normalizedRoomCode, room } = roomResult;
+
+    if (room.gameState.gamePhase !== GAME_PHASES.MATCH_END) {
+        return { 
+            success: false, 
+            error: "Match is not ready to end." 
+        };
+    }
+
+    // db save stats goes here later
+
+    room.gameState = createInitialGameState();
+    room.roomState.status = ROOM_STATUSES.LOBBY;
+    room.roomState.roundsToWin = DEFAULT_ROUNDS_TO_WIN;
+    room.roomState.players.forEach(player => {
+        player.isReady = false;
+    });
+
+    saveRoom(normalizedRoomCode, room);
+    return {
+        success: true,
+        roomCode: normalizedRoomCode
+    }
+
+
 }
 

@@ -52,9 +52,11 @@ export function createInitialGameState() {
             [TEAM_IDS.TWO]: 0
         },
 
+        lastTrickWinnerIndex: null,
         roundWinnerTeamId: null,
         matchWinnerTeamId: null,
-        roundEndsAt: null
+        roundEndsAt: null,
+        matchEndsAt: null
     };
 }
 
@@ -98,7 +100,7 @@ export function trickWinner(cardsOnTable, ledSuit, trumpSuit) {
             winningCard = card;
             continue;
         }
-        if (cardIsLeadSuit && winnerIsTrump) continue;
+        if (!cardIsTrump && winnerIsTrump) continue;
         if (cardIsTrump && winnerIsTrump || cardIsLeadSuit && winnerIsLeadSuit) {
             const cardRank = RANKS.indexOf(card.rank);
             const winnerRank = RANKS.indexOf(winningCard.rank);
@@ -108,4 +110,19 @@ export function trickWinner(cardsOnTable, ledSuit, trumpSuit) {
     }
 
     return winningCard;
+}
+
+export function getNextBidderIndex(players, playerTricks, roundWinnerTeamId, lastTrickWinnerIndex) {
+    const roundWinners = players.filter((player) => 
+        player.teamId === roundWinnerTeamId
+    )
+
+    const playerOne = roundWinners[0]
+    const playerTwo = roundWinners[1]
+
+    if (playerTricks[playerOne.index] > playerTricks[playerTwo.index])
+        return playerOne.index;
+    else if (playerTricks[playerOne.index] < playerTricks[playerTwo.index])
+        return playerTwo.index;
+    else return lastTrickWinnerIndex;
 }
