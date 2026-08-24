@@ -15,6 +15,7 @@ import {
     TEAM_IDS,
     TRICKS_PER_ROUND,
     ROOM_STATUSES,
+    GAME_LOG_EVENTS,
 } from "../../../shared/gameConstants.js";
 import { createDeck, shuffleDeck, trickWinner, createInitialGameState, getNextBidderIndex } from "../game/engine.js";
 import { getValidRoom } from "../utils/roomUtils.js";
@@ -163,7 +164,16 @@ export function bid({ userId, roomCode, tricks, suit }) {
     room.gameState.biddingData = {
         consecutivePasses: 0,
         hasBidThisAuction: true,
-    }
+    };
+
+    room.gameState.gameLog.push({
+        id: crypto.randomUUID(),
+        type: GAME_LOG_EVENTS.BID,
+        playerIndex: player.index,
+        teamId: player.teamId,
+        tricks,
+        suit
+    });
 
     saveRoom(normalizedRoomCode, room);
 
@@ -204,6 +214,13 @@ export function bidPass({ userId, roomCode }) {
     }
 
     room.gameState.biddingData.consecutivePasses += 1;
+
+    room.gameState.gameLog.push({
+        id: crypto.randomUUID(),
+        type: GAME_LOG_EVENTS.PASS,
+        playerIndex: player.index,
+        teamId: player.teamId
+    });
 
     const passesRequired = room.gameState.biddingData.hasBidThisAuction
         ? MAX_PLAYERS - 1
@@ -298,6 +315,15 @@ export function playCard({ userId, roomCode, cardId }) {
         playerIndex: player.index,
     });
 
+    room.gameState.gameLog.push({
+        id: crypto.randomUUID(),
+        type: GAME_LOG_EVENTS.CARD_PLAYED,
+        playerIndex: player.index,
+        teamId: player.teamId,
+        suit: playerCard.suit,
+        rank: playerCard.rank
+    });
+
     if (room.gameState.playingData.cardsOnTable.length >= CARDS_PER_TRICK) {
         // determine trick winner
         const winningCard = trickWinner(room.gameState.playingData.cardsOnTable, room.gameState.playingData.ledSuit, room.gameState.contract.suit);
@@ -314,6 +340,13 @@ export function playCard({ userId, roomCode, cardId }) {
         room.gameState.playingData.cardsOnTable = [];
         room.gameState.playingData.ledSuit = null;
         room.gameState.activePlayerIndex = winningIndex;
+
+        room.gameState.gameLog.push({
+            id: crypto.randomUUID(),
+            type: GAME_LOG_EVENTS.TRICK_WON,
+            playerIndex: winningPlayer.index,
+            teamId: winningPlayer.teamId
+        });
 
         const otherTeamId =
             room.gameState.contract.teamId === TEAM_IDS.ONE
@@ -341,6 +374,22 @@ export function playCard({ userId, roomCode, cardId }) {
             room.gameState.matchWinnerTeamId = matchWon ? winningPlayer.teamId : null;
             room.gameState.roundEndsAt = Date.now() + ROUND_END_DURATION_MS;
             if (room.gameState.gamePhase === GAME_PHASES.MATCH_END) room.gameState.matchEndsAt = Date.now() + MATCH_END_DURATION_MS;
+
+            room.gameState.gameLog.push({
+                id: crypto.randomUUID(),
+                type: GAME_LOG_EVENTS.ROUND_WON,
+                playerIndex: winningIndex,
+                teamId: winningPlayer.teamId
+            });
+
+            if (matchWon) {
+                room.gameState.gameLog.push({
+                    id: crypto.randomUUID(),
+                    type: GAME_LOG_EVENTS.MATCH_WON,
+                    playerIndex: winningIndex,
+                    teamId: winningPlayer.teamId
+                });
+            }
 
             saveRoom(normalizedRoomCode, room);
             return {
@@ -383,6 +432,7 @@ export function startNextRound({ roomCode }) {
         };
     }
 
+    const gameLog = room.gameState.gameLog;
     const nextRoundNumber = room.gameState.roundNumber + 1;
     const matchScore = room.gameState.matchScore;
     const activePlayerIndex = getNextBidderIndex(
@@ -398,6 +448,7 @@ export function startNextRound({ roomCode }) {
     room.gameState.gamePhase = GAME_PHASES.DEALING;
     room.gameState.dealNumber = DEAL_NUMBERS.FIRST;
     room.gameState.activePlayerIndex = activePlayerIndex;
+    room.gameState.gameLog = gameLog;
 
     const dealResult = dealCurrentPacket(
         room.gameState,
@@ -405,6 +456,12 @@ export function startNextRound({ roomCode }) {
     );
 
     if (!dealResult.success) return dealResult;
+
+    room.gameState.gameLog.push({
+            id: crypto.randomUUID(),
+            type: GAME_LOG_EVENTS.ROUND_STARTED,
+            roundNumber: room.gameState.roundNumber,
+        });
 
     saveRoom(normalizedRoomCode, room);
 

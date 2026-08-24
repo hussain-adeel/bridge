@@ -31,6 +31,17 @@ export const SOCKET_EVENTS = {
     GET_ROOM_STATE: "getRoomState"
 };
 
+export const GAME_LOG_EVENTS = {
+    MATCH_STARTED: "MATCH_STARTED",
+    ROUND_STARTED: "ROUND_STARTED",
+    BID: "BID",
+    PASS: "PASS",
+    CARD_PLAYED: "CARD_PLAYED",
+    TRICK_WON: "TRICK_WON",
+    ROUND_WON: "ROUND_WON",
+    MATCH_WON: "MATCH_WON",
+};
+
 export const AUCTION_NUMBERS = {
     FIRST: 1,
     SECOND: 2,

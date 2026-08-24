@@ -300,6 +300,18 @@ export function startMatch({userId, roomCode}) {
 
     if (!dealResult.success) return dealResult;
 
+    room.gameState.gameLog.push(
+        {
+            id: crypto.randomUUID(),
+            type: GAME_LOG_EVENTS.MATCH_STARTED,
+        },
+        {
+            id: crypto.randomUUID(),
+            type: GAME_LOG_EVENTS.ROUND_STARTED,
+            roundNumber: room.gameState.roundNumber,
+        }
+    );
+
     saveRoom(normalizedRoomCode, room);
 
     return { success: true, roomCode: normalizedRoomCode }

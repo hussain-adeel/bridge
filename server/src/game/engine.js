@@ -10,11 +10,6 @@ export function createInitialGameState() {
         trickNumber: null,
         activePlayerIndex: 0,
 
-        teams: {
-            [TEAM_IDS.ONE]: { name: 'Alpha' },
-            [TEAM_IDS.TWO]: { name: 'Bravo' }
-        },
-
         hands: {}, 
 
         remainingDeck: [],
@@ -51,6 +46,7 @@ export function createInitialGameState() {
             [TEAM_IDS.ONE]: 0,
             [TEAM_IDS.TWO]: 0
         },
+        gameLog: [],
 
         lastTrickWinnerIndex: null,
         roundWinnerTeamId: null,

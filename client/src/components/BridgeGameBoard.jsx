@@ -3,6 +3,7 @@ import BridgeGameHeader from "./BridgeGameHeader";
 import PlayerAvatar from "./PlayerAvatar";
 import PlayerHand from "./PlayerHand";
 import Bidding from "./Bidding";
+import GameLog from "./GameLog";
 import MiddleStack from "./MiddleStack";
 import End from "./End";
 import { DEAL_CARD_COUNTS, GAME_PHASES, MAX_PLAYERS, TEAM_IDS } from "../../../shared/gameConstants.js";
@@ -55,6 +56,9 @@ export default function BridgeGameBoard({
                 suitCalled={suitCalled}
                 teamScore={teamScore}
                 enemyScore={enemyScore}
+                gameLog={gameState.gameLog ?? []}
+                players={safePlayers}
+                myTeamId={myTeamId}
             />
 
             <div className="grow w-full overflow-auto flex flex-col">
@@ -78,7 +82,7 @@ export default function BridgeGameBoard({
                             />
                         </div>
 
-                        <div className="col-start-2 row-start-2 flex justify-center items-center">
+                        <div className="col-start-2 row-start-2 flex flex-col justify-center items-center gap-3">
                             {gameState.gamePhase === GAME_PHASES.BIDDING ? (
                                 <Bidding
                                     key={`${gameState.gamePhase}-${gameState.auctionNumber}-${gameState.activePlayerIndex}`}
@@ -110,6 +114,15 @@ export default function BridgeGameBoard({
                                     enemyMatchScore={enemyMatchScore}
                                 />
                             ) : null}
+                            {(gameState.gamePhase === GAME_PHASES.BIDDING || gameState.gamePhase === GAME_PHASES.PLAYING) && (
+                                <div className="w-full max-w-md xl:hidden">
+                                    <GameLog
+                                        entries={gameState.gameLog ?? []}
+                                        players={safePlayers}
+                                        myTeamId={myTeamId}
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         <div className="col-start-3 row-start-2 flex justify-center items-center -rotate-90 origin-center">

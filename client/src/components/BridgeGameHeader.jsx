@@ -1,7 +1,8 @@
 import bridgeLogo from "../assets/bridge_logo.svg";
 import { GAME_PHASES, SUIT_SYMBOLS, TRICKS_PER_ROUND } from "../../../shared/gameConstants.js";
+import GameLog from "./GameLog";
 
-export default function BridgeGameHeader({ gamePhase, isMyTeamBid, tricksCalled, suitCalled, teamScore, enemyScore }) {
+export default function BridgeGameHeader({ gamePhase, isMyTeamBid, tricksCalled, suitCalled, teamScore, enemyScore, gameLog, players, myTeamId }) {
     const safeTricksCalled = tricksCalled ?? 0;
     const safeSuitCalled = suitCalled ?? "";
     const safeTeamScore = teamScore ?? 0;
@@ -24,8 +25,16 @@ export default function BridgeGameHeader({ gamePhase, isMyTeamBid, tricksCalled,
     };
 
     return (
-        <header className="w-full flex justify-center items-center pt-8 pb-6 xl:pb-0 px-8 xl:px-24 select-none">
-            <div className="flex-1 text-left max-[400px]:text-center">
+        <header className="w-full flex justify-center items-start gap-4 pt-8 pb-6 xl:pb-0 px-4 md:px-8 xl:px-24 select-none">
+            <div className="hidden xl:block flex-1">
+                <GameLog entries={gameLog} players={players} myTeamId={myTeamId} />
+            </div>
+
+            <div className="flex flex-1 max-[700px]:hidden justify-center">
+                <img src={bridgeLogo} alt="Bridge Game Logo" className="h-20 w-auto object-contain select-none drop-shadow-[0_0_8px_rgba(211,175,55,0.8)]" />
+            </div>
+
+            <div className="flex flex-1 justify-end gap-6 text-right max-[400px]:text-center">
                 <div className={`flex-col ${headerVisibility}`}>
                     <h2 className="text-[20px] lg:text-[30px] font-extrabold tracking-tighter drop-shadow-md text-white whitespace-nowrap">
                         SCORE:
@@ -39,18 +48,11 @@ export default function BridgeGameHeader({ gamePhase, isMyTeamBid, tricksCalled,
                         {scoreText}
                     </h2>
                 </div>
-            </div>
-
-            <div className="flex flex-1 max-[700px]:hidden justify-center">
-                <img src={bridgeLogo} alt="Bridge Game Logo" className="h-20 w-auto object-contain select-none drop-shadow-[0_0_8px_rgba(211,175,55,0.8)]" />
-            </div>
-
-            <div className="flex-1 text-right max-[400px]:text-center">
                 <div className="flex-col">
                     <h2 className="text-[20px] lg:text-[30px] font-extrabold tracking-tighter drop-shadow-md text-white whitespace-nowrap">
                         BID:
                     </h2>
-                    <h1 className="text-[#D3AF37] text-5xl lg:text-[60px] font-extrabold tracking-tighter drop-shadow-md whitespace-nowrap">
+                    <h1 className="text-[#D3AF37] text-5xl lg:text-[60px] font-extrabold tracking-tighter drop-shadow-md text-white whitespace-nowrap">
                         <span>{safeTricksCalled}</span> <span className="ml-1">{suitSymbol}</span>
                     </h1>
                     <h2 className="text-[20px] lg:text-[30px] font-extrabold tracking-tighter drop-shadow-md text-white whitespace-nowrap">
