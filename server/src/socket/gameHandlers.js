@@ -1,6 +1,32 @@
-import { MATCH_END_DURATION_MS, ROUND_END_DURATION_MS, SOCKET_EVENTS } from "../../../shared/gameConstants.js";
+import { MATCH_END_DURATION_MS, ROUND_END_DURATION_MS, SOCKET_EVENTS, TRICK_RESULT_DURATION_MS } from "../../../shared/gameConstants.js";
 import { emitRoomStateUpdated } from "./roomStateEmitter.js";
-import { bid, bidPass, playCard, startNextRound, returnRoomToLobby } from "../services/gameService.js";
+import { bid, bidPass, playCard, resolveTrick, startNextRound, returnRoomToLobby } from "../services/gameService.js";
+
+function schedulePostRoundTransition(io, result) {
+    if (result.shouldStartNextRound) {
+        setTimeout(() => {
+            const roundResult = startNextRound({
+                roomCode: result.roomCode,
+            });
+
+            if (roundResult.success) {
+                emitRoomStateUpdated(io, roundResult.roomCode);
+            }
+        }, ROUND_END_DURATION_MS);
+    }
+
+    if (result.shouldReturnToLobby) {
+        setTimeout(() => {
+            const lobbyResult = returnRoomToLobby({
+                roomCode: result.roomCode,
+            });
+
+            if (lobbyResult.success) {
+                emitRoomStateUpdated(io, lobbyResult.roomCode);
+            }
+        }, MATCH_END_DURATION_MS);
+    }
+}
 
 export function registerGameHandlers(io, socket) {
     socket.on(SOCKET_EVENTS.BID, async ({ roomCode, tricks, suit } = {}, callback = () => {}) => {
@@ -60,30 +86,17 @@ export function registerGameHandlers(io, socket) {
                 return;
             }
 
-            if (result.shouldStartNextRound) {
+            if (result.shouldResolveTrick) {
                 setTimeout(() => {
-                    const roundResult = startNextRound({
-                        roomCode: result.roomCode
-                    })
-
-                    if (roundResult.success) {
-                        emitRoomStateUpdated(io, roundResult.roomCode);
-                        return;
-                    }
-                }, ROUND_END_DURATION_MS)
-            }
-
-            if (result.shouldReturnToLobby) {
-                setTimeout(() => {
-                    const lobbyResult = returnRoomToLobby({
+                    const trickResult = resolveTrick({
                         roomCode: result.roomCode,
                     });
 
-                    if (lobbyResult.success) {
-                        emitRoomStateUpdated(io, lobbyResult.roomCode);
-                        return;
+                    if (trickResult.success) {
+                        emitRoomStateUpdated(io, trickResult.roomCode);
+                        schedulePostRoundTransition(io, trickResult);
                     }
-                }, MATCH_END_DURATION_MS);
+                }, TRICK_RESULT_DURATION_MS);
             }
 
             emitRoomStateUpdated(io, result.roomCode);

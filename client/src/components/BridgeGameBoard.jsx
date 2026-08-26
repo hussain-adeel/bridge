@@ -70,6 +70,7 @@ export default function BridgeGameBoard({
                                 isTurn={isTurn(partner?.index ?? null)}
                                 gamePhase={gameState.gamePhase}
                                 tricksWon={gameState.playerTricks?.[partner?.index] ?? 0}
+                                isFriendly={partner?.teamId === myTeamId}
                             />
                         </div>
 
@@ -79,6 +80,7 @@ export default function BridgeGameBoard({
                                 isTurn={isTurn(leftOpponent?.index ?? null)}
                                 gamePhase={gameState.gamePhase}
                                 tricksWon={gameState.playerTricks?.[leftOpponent?.index] ?? 0}
+                                isFriendly={leftOpponent?.teamId === myTeamId}
                             />
                         </div>
 
@@ -93,7 +95,11 @@ export default function BridgeGameBoard({
                                     isMyTurn={isMyTurn && !isGamePaused}
                                 />
                             ) : gameState.gamePhase === GAME_PHASES.PLAYING ? (
-                                <MiddleStack cardsOnTable={gameState.playingData?.cardsOnTable ?? []} myIndex={myIndex} />
+                                <MiddleStack
+                                    cardsOnTable={gameState.playingData?.cardsOnTable ?? []}
+                                    myIndex={myIndex}
+                                    trickWinnerIndex={gameState.playingData?.trickWinnerIndex}
+                                />
                             ) : gameState.gamePhase === GAME_PHASES.DEALING ? (
                                 <div className="w-full max-w-md flex flex-col items-center gap-2 mx-auto bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-600 text-white select-none">
                                     <span className="font-extrabold text-3xl">DEALING CARDS...</span>
@@ -131,6 +137,7 @@ export default function BridgeGameBoard({
                                 isTurn={isTurn(rightOpponent?.index ?? null)}
                                 gamePhase={gameState.gamePhase}
                                 tricksWon={gameState.playerTricks?.[rightOpponent?.index] ?? 0}
+                                isFriendly={rightOpponent?.teamId === myTeamId}
                             />
                         </div>
 
@@ -138,6 +145,8 @@ export default function BridgeGameBoard({
                             <PlayerHand
                                 cards={myCards}
                                 leadSuit={leadSuit}
+                                trumpSuit={gameState.contract?.suit}
+                                trumpBroken={gameState.playingData?.trumpBroken}
                                 gamePhase={gameState.gamePhase}
                                 isMyTurn={isMyTurn && !isGamePaused}
                                 tricksWon={tricksWon}

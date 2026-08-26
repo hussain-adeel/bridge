@@ -4,12 +4,14 @@ import { GAME_PHASES, RANKS, SUITS } from "../../../shared/gameConstants.js";
 import Card from "./Card";
 import { useGameActions } from "../hooks/useGameActions.js";
 
-export default function PlayerHand({ cards, leadSuit, gamePhase, isMyTurn, tricksWon }) {
+export default function PlayerHand({ cards, leadSuit, trumpSuit, trumpBroken, gamePhase, isMyTurn, tricksWon }) {
     const [selectedCard, setSelectedCard] = useState(null);
     const { code: roomCode } = useParams();
     const { onPlayCard } = useGameActions(roomCode);
     const safeCards = cards ?? [];
     const safeLeadSuit = leadSuit ?? "";
+    const safeTrumpSuit = trumpSuit ?? "";
+    const safeTrumpBroken = trumpBroken ?? false;
     const safeIsMyTurn = isMyTurn ?? false;
     const safeTricksWon = tricksWon ?? 0;
 
@@ -25,7 +27,12 @@ export default function PlayerHand({ cards, leadSuit, gamePhase, isMyTurn, trick
     const isCardPlayable = (card) => {
         if (!safeIsMyTurn || gamePhase !== GAME_PHASES.PLAYING) return false;
         const hasLeadSuit = safeLeadSuit && safeCards.some((playerCard) => normalizeSuit(playerCard.suit) === normalizeSuit(safeLeadSuit));
-        return !hasLeadSuit || normalizeSuit(card.suit) === normalizeSuit(safeLeadSuit);
+        if (hasLeadSuit) return normalizeSuit(card.suit) === normalizeSuit(safeLeadSuit);
+
+        const isTrump = normalizeSuit(card.suit) === normalizeSuit(safeTrumpSuit);
+        const hasNonTrumpCard = safeCards.some((playerCard) => normalizeSuit(playerCard.suit) !== normalizeSuit(safeTrumpSuit));
+
+        return safeTrumpBroken || !isTrump || !hasNonTrumpCard;
     };
 
     const handlePlay = () => {

@@ -1,10 +1,15 @@
 import { GAME_PHASES } from "../../../shared/gameConstants.js";
 
-export default function PlayerAvatar({ player, isTurn, gamePhase, tricksWon }) {
+export default function PlayerAvatar({ player, isTurn, gamePhase, tricksWon, isFriendly }) {
     if (!player) return null;
     const safeIsTurn = isTurn ?? false;
     const safeGamePhase = gamePhase;
     const safeTricksWon = tricksWon ?? 0;
+    const teamAccent = isFriendly === true
+        ? "border-emerald-400/80 shadow-[0_0_18px_rgba(52,211,153,0.28)]"
+        : isFriendly === false
+        ? "border-red-400/80 shadow-[0_0_18px_rgba(248,113,113,0.28)]"
+        : "border-neutral-800";
 
     return (
         <a 
@@ -18,9 +23,10 @@ export default function PlayerAvatar({ player, isTurn, gamePhase, tricksWon }) {
                 flex-row px-2 py-1 text-[10px] gap-2 mb-3
                 md:flex-col md:p-3 md:w-28 md:text-sm
                 ${safeIsTurn 
-                    ? "bg-white text-black border-white shadow-md" 
-                    : "bg-neutral-900 text-white border-neutral-800 hover:border-neutral-600"
+                    ? "bg-white text-black shadow-md ring-2 ring-amber-200/80" 
+                    : "bg-neutral-900 text-white hover:brightness-125"
                 }
+                ${teamAccent}
             `}
         >
             <div className="flex items-center gap-1 overflow-hidden w-full justify-center">

@@ -29,7 +29,10 @@ export function createInitialGameState() {
 
         playingData: {
             ledSuit: null, 
-            cardsOnTable: []
+            cardsOnTable: [],
+            trickWinnerIndex: null,
+            trickEndsAt: null,
+            trumpBroken: false,
         },
 
         playerTricks: {

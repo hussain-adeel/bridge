@@ -13,6 +13,7 @@ import {
     ROUND_END_DURATION_MS,
     SUITS,
     TEAM_IDS,
+    TRICK_RESULT_DURATION_MS,
     TRICKS_PER_ROUND,
     ROOM_STATUSES,
     GAME_LOG_EVENTS,
@@ -274,6 +275,11 @@ export function playCard({ userId, roomCode, cardId }) {
         error: `Cannot play card when in phase: ${room.gameState.gamePhase}`
     }
 
+    if (room.gameState.playingData.trickEndsAt) return {
+        success: false,
+        error: "The trick is still resolving."
+    }
+
     if (player.index !== room.gameState.activePlayerIndex) {
         return {
             success: false,
@@ -295,18 +301,37 @@ export function playCard({ userId, roomCode, cardId }) {
         error: "You do not have this card."
     }
 
-    if (room.gameState.playingData.ledSuit === null) room.gameState.playingData.ledSuit = playerCard.suit;
+    const ledSuit = room.gameState.playingData.ledSuit;
+    const trumpSuit = room.gameState.contract.suit;
+    const isLeadingTrick = ledSuit === null;
+    const isTrump = playerCard.suit === trumpSuit;
+    const hasNonTrumpCard = playerHand.some((card) => card.suit !== trumpSuit);
 
-    const playerHasLedSuit = playerHand.some((card) => card.suit === room.gameState.playingData.ledSuit);
+    if (
+        isLeadingTrick &&
+        isTrump &&
+        !room.gameState.playingData.trumpBroken &&
+        hasNonTrumpCard
+    ) {
+        return {
+            success: false,
+            error: "Trump cannot be led until it has been broken.",
+        };
+    }
 
-    if (playerHasLedSuit && playerCard.suit !== room.gameState.playingData.ledSuit) return {
+    const playerHasLedSuit = !isLeadingTrick && playerHand.some((card) => card.suit === ledSuit);
+
+    if (playerHasLedSuit && playerCard.suit !== ledSuit) return {
         success: false,
         error: "You must play the lead suit if you posses it."
     }
 
-    // else we let them play it
+    if (isLeadingTrick) room.gameState.playingData.ledSuit = playerCard.suit;
 
-    // first, remove from player's hand
+    if (!isLeadingTrick && isTrump && ledSuit !== trumpSuit) {
+        room.gameState.playingData.trumpBroken = true;
+    }
+
     room.gameState.hands[player.id] = playerHand.filter((card) => card.id !== cardId);
 
     // add to played cards on table
@@ -325,88 +350,15 @@ export function playCard({ userId, roomCode, cardId }) {
     });
 
     if (room.gameState.playingData.cardsOnTable.length >= CARDS_PER_TRICK) {
-        // determine trick winner
         const winningCard = trickWinner(room.gameState.playingData.cardsOnTable, room.gameState.playingData.ledSuit, room.gameState.contract.suit);
+        room.gameState.playingData.trickWinnerIndex = winningCard.playerIndex;
+        room.gameState.playingData.trickEndsAt = Date.now() + TRICK_RESULT_DURATION_MS;
 
-        const winningIndex = winningCard.playerIndex;
-        const winningPlayer = room.roomState.players.find((player) => player.index === winningIndex);
-        
-        // update score
-        room.gameState.currentHandTricks[winningPlayer.teamId] += 1;
-        room.gameState.playerTricks[winningIndex] += 1;
-        room.gameState.lastTrickWinnerIndex = winningIndex;
-
-        // clear cardsOnTable
-        room.gameState.playingData.cardsOnTable = [];
-        room.gameState.playingData.ledSuit = null;
-        room.gameState.activePlayerIndex = winningIndex;
-
-        room.gameState.gameLog.push({
-            id: crypto.randomUUID(),
-            type: GAME_LOG_EVENTS.TRICK_WON,
-            playerIndex: winningPlayer.index,
-            teamId: winningPlayer.teamId
-        });
-
-        const otherTeamId =
-            room.gameState.contract.teamId === TEAM_IDS.ONE
-                ? TEAM_IDS.TWO
-                : TEAM_IDS.ONE;
-
-        // advance to next round or if match over, do that
-        // check if either team has reached target
-        const roundOver = 
-            (room.gameState.currentHandTricks[room.gameState.contract.teamId] >= room.gameState.contract.tricks) ||
-            room.gameState.currentHandTricks[otherTeamId] >= ((TRICKS_PER_ROUND + 1) - room.gameState.contract.tricks);
-
-
-        if (roundOver) {
-            room.gameState.matchScore[winningPlayer.teamId] += 1;
-            
-            const matchWon =
-                room.gameState.matchScore[winningPlayer.teamId] >= room.roomState.roundsToWin;
-
-            room.gameState.gamePhase = matchWon
-                ? GAME_PHASES.MATCH_END
-                : GAME_PHASES.ROUND_END;
-            room.gameState.trickNumber = 0;
-            room.gameState.roundWinnerTeamId = winningPlayer.teamId;
-            room.gameState.matchWinnerTeamId = matchWon ? winningPlayer.teamId : null;
-            room.gameState.roundEndsAt = Date.now() + ROUND_END_DURATION_MS;
-            if (room.gameState.gamePhase === GAME_PHASES.MATCH_END) room.gameState.matchEndsAt = Date.now() + MATCH_END_DURATION_MS;
-
-            room.gameState.gameLog.push({
-                id: crypto.randomUUID(),
-                type: GAME_LOG_EVENTS.ROUND_WON,
-                playerIndex: winningIndex,
-                teamId: winningPlayer.teamId
-            });
-
-            if (matchWon) {
-                room.gameState.gameLog.push({
-                    id: crypto.randomUUID(),
-                    type: GAME_LOG_EVENTS.MATCH_WON,
-                    playerIndex: winningIndex,
-                    teamId: winningPlayer.teamId
-                });
-            }
-
-            saveRoom(normalizedRoomCode, room);
-            return {
-                success: true,
-                roomCode: normalizedRoomCode,
-                shouldStartNextRound: !matchWon,
-                shouldReturnToLobby: matchWon
-            }
-        }
-        else {
-            room.gameState.trickNumber += 1;
-        }
-        
         saveRoom(normalizedRoomCode, room);
         return {
             success: true,
-            roomCode: normalizedRoomCode
+            roomCode: normalizedRoomCode,
+            shouldResolveTrick: true,
         }
     }
 
@@ -417,6 +369,98 @@ export function playCard({ userId, roomCode, cardId }) {
         success: true,
         roomCode: normalizedRoomCode
     }
+}
+
+export function resolveTrick({ roomCode }) {
+    const roomResult = getValidRoom(roomCode);
+    if (!roomResult.success) return roomResult;
+
+    const { roomCode: normalizedRoomCode, room } = roomResult;
+    const { gameState } = room;
+    const winningIndex = gameState.playingData.trickWinnerIndex;
+
+    if (
+        gameState.gamePhase !== GAME_PHASES.PLAYING ||
+        !Number.isInteger(winningIndex) ||
+        gameState.playingData.cardsOnTable.length !== CARDS_PER_TRICK
+    ) {
+        return { success: false, error: "No trick is ready to resolve." };
+    }
+
+    const winningPlayer = room.roomState.players.find((player) => player.index === winningIndex);
+    if (!winningPlayer) return { success: false, error: "Unable to find the trick winner." };
+
+    gameState.currentHandTricks[winningPlayer.teamId] += 1;
+    gameState.playerTricks[winningIndex] += 1;
+    gameState.lastTrickWinnerIndex = winningIndex;
+    gameState.activePlayerIndex = winningIndex;
+    gameState.gameLog.push({
+        id: crypto.randomUUID(),
+        type: GAME_LOG_EVENTS.TRICK_WON,
+        playerIndex: winningPlayer.index,
+        teamId: winningPlayer.teamId,
+    });
+
+    gameState.playingData.cardsOnTable = [];
+    gameState.playingData.ledSuit = null;
+    gameState.playingData.trickWinnerIndex = null;
+    gameState.playingData.trickEndsAt = null;
+
+    const otherTeamId =
+        gameState.contract.teamId === TEAM_IDS.ONE
+            ? TEAM_IDS.TWO
+            : TEAM_IDS.ONE;
+
+    const roundOver =
+        gameState.currentHandTricks[gameState.contract.teamId] >= gameState.contract.tricks ||
+        gameState.currentHandTricks[otherTeamId] >= ((TRICKS_PER_ROUND + 1) - gameState.contract.tricks);
+
+    if (roundOver) {
+        gameState.matchScore[winningPlayer.teamId] += 1;
+
+        const matchWon =
+            gameState.matchScore[winningPlayer.teamId] >= room.roomState.roundsToWin;
+
+        gameState.gamePhase = matchWon
+            ? GAME_PHASES.MATCH_END
+            : GAME_PHASES.ROUND_END;
+        gameState.trickNumber = 0;
+        gameState.roundWinnerTeamId = winningPlayer.teamId;
+        gameState.matchWinnerTeamId = matchWon ? winningPlayer.teamId : null;
+        gameState.roundEndsAt = Date.now() + ROUND_END_DURATION_MS;
+        gameState.matchEndsAt = matchWon ? Date.now() + MATCH_END_DURATION_MS : null;
+        gameState.gameLog.push({
+            id: crypto.randomUUID(),
+            type: GAME_LOG_EVENTS.ROUND_WON,
+            playerIndex: winningIndex,
+            teamId: winningPlayer.teamId,
+        });
+
+        if (matchWon) {
+            gameState.gameLog.push({
+                id: crypto.randomUUID(),
+                type: GAME_LOG_EVENTS.MATCH_WON,
+                playerIndex: winningIndex,
+                teamId: winningPlayer.teamId,
+            });
+        }
+
+        saveRoom(normalizedRoomCode, room);
+        return {
+            success: true,
+            roomCode: normalizedRoomCode,
+            shouldStartNextRound: !matchWon,
+            shouldReturnToLobby: matchWon,
+        };
+    }
+
+    gameState.trickNumber += 1;
+    saveRoom(normalizedRoomCode, room);
+
+    return {
+        success: true,
+        roomCode: normalizedRoomCode,
+    };
 }
 
 export function startNextRound({ roomCode }) {
