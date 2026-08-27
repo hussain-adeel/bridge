@@ -87,14 +87,18 @@ export function registerGameHandlers(io, socket) {
             }
 
             if (result.shouldResolveTrick) {
-                setTimeout(() => {
-                    const trickResult = resolveTrick({
-                        roomCode: result.roomCode,
-                    });
+                setTimeout(async () => {
+                    try {
+                        const trickResult = await resolveTrick({
+                            roomCode: result.roomCode,
+                        });
 
-                    if (trickResult.success) {
-                        emitRoomStateUpdated(io, trickResult.roomCode);
-                        schedulePostRoundTransition(io, trickResult);
+                        if (trickResult.success) {
+                            emitRoomStateUpdated(io, trickResult.roomCode);
+                            schedulePostRoundTransition(io, trickResult);
+                        }
+                    } catch (err) {
+                        console.error("Error resolving trick:", err);
                     }
                 }, TRICK_RESULT_DURATION_MS);
             }

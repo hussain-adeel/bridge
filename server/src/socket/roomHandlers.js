@@ -173,9 +173,9 @@ export function registerRoomHandlers(io, socket) {
         }
     });
 
-    socket.on(SOCKET_EVENTS.START_MATCH, ({ roomCode } = {}, callback = () => {}) => {
+    socket.on(SOCKET_EVENTS.START_MATCH, async ({ roomCode } = {}, callback = () => {}) => {
         try {
-            const result = startMatch({
+            const result = await startMatch({
                 userId: socket.user.id,
                 roomCode,
             });

@@ -4,6 +4,7 @@ import { createInitialGameState } from "../game/engine.js";
 import { DEFAULT_ROUNDS_TO_WIN, MAX_PLAYERS, ROOM_STATUSES, TEAM_IDS, MATCH_ROUND_OPTIONS, GAME_PHASES, DEAL_NUMBERS, GAME_LOG_EVENTS } from "../../../shared/gameConstants.js";
 import { getPlayerGameState, dealCurrentPacket } from "./gameService.js";
 import { getValidRoom } from "../utils/roomUtils.js";
+import { createMatchRecord } from "./statsService.js";
 
 export function createRoom({userId, username, socketId}) {
     const roomCode = generateRoomCode();
@@ -241,7 +242,7 @@ export function changeMatchRounds({userId, roomCode, roundsToWin}) {
     };
 }
 
-export function startMatch({userId, roomCode}) {
+export async function startMatch({userId, roomCode}) {
     const roomResult = getValidRoom(roomCode);
     if (!roomResult.success) return roomResult;
 
@@ -286,10 +287,13 @@ export function startMatch({userId, roomCode}) {
         error: "Not all players are ready"
     };
 
+    const matchId = await createMatchRecord(room.roomState.players);
+
     // inital game set up logic
     // set to deal number 1
     room.roomState.status = ROOM_STATUSES.IN_PROGRESS;
     room.gameState = createInitialGameState();
+    room.gameState.matchId = matchId;
     room.gameState.gamePhase = GAME_PHASES.DEALING;
     room.gameState.dealNumber = DEAL_NUMBERS.FIRST;
 
@@ -311,7 +315,7 @@ export function startMatch({userId, roomCode}) {
             roundNumber: room.gameState.roundNumber,
         }
     );
-
+    
     saveRoom(normalizedRoomCode, room);
 
     return { success: true, roomCode: normalizedRoomCode }

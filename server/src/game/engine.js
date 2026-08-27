@@ -3,6 +3,7 @@ import { randomInt } from "node:crypto";
 
 export function createInitialGameState() {
     return {
+        matchId: null,
         gamePhase: null,
         roundNumber: 1,
         dealNumber: null,

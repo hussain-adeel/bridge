@@ -21,6 +21,7 @@ import {
 import { createDeck, shuffleDeck, trickWinner, createInitialGameState, getNextBidderIndex } from "../game/engine.js";
 import { getValidRoom } from "../utils/roomUtils.js";
 import { saveRoom } from "../game/state.js";
+import { completeMatchRecord, recordRoundStats } from "./statsService.js";
 
 export function getPlayerGameState(gameState, userId) {
     const {hands, remainingDeck, ...publicGameState} = gameState;
@@ -371,7 +372,7 @@ export function playCard({ userId, roomCode, cardId }) {
     }
 }
 
-export function resolveTrick({ roomCode }) {
+export async function resolveTrick({ roomCode }) {
     const roomResult = getValidRoom(roomCode);
     if (!roomResult.success) return roomResult;
 
@@ -421,6 +422,13 @@ export function resolveTrick({ roomCode }) {
         const matchWon =
             gameState.matchScore[winningPlayer.teamId] >= room.roomState.roundsToWin;
 
+        await recordRoundStats({
+            players: room.roomState.players,
+            roundWinnerTeamId: winningPlayer.teamId,
+            playerTricks: gameState.playerTricks,
+            completedTricks: gameState.trickNumber,
+        });
+
         gameState.gamePhase = matchWon
             ? GAME_PHASES.MATCH_END
             : GAME_PHASES.ROUND_END;
@@ -442,6 +450,13 @@ export function resolveTrick({ roomCode }) {
                 type: GAME_LOG_EVENTS.MATCH_WON,
                 playerIndex: winningIndex,
                 teamId: winningPlayer.teamId,
+            });
+
+            await completeMatchRecord({
+                players: room.roomState.players,
+                matchId: room.gameState.matchId,
+                matchWinnerTeamId: winningPlayer.teamId,
+                matchScore: gameState.matchScore
             });
         }
 
