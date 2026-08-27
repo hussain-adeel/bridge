@@ -1,7 +1,7 @@
 import { generateRoomCode } from "../utils/helpers.js";
-import { roomExists, saveRoom, getRoom, getAllRooms, deleteRoom } from "../game/state.js";
+import { saveRoom, getAllRooms, deleteRoom } from "../game/state.js";
 import { createInitialGameState } from "../game/engine.js";
-import { DEFAULT_ROUNDS_TO_WIN, MAX_PLAYERS, ROOM_STATUSES, TEAM_IDS, MATCH_ROUND_OPTIONS, GAME_PHASES, DEAL_NUMBERS } from "../../../shared/gameConstants.js";
+import { DEFAULT_ROUNDS_TO_WIN, MAX_PLAYERS, ROOM_STATUSES, TEAM_IDS, MATCH_ROUND_OPTIONS, GAME_PHASES, DEAL_NUMBERS, GAME_LOG_EVENTS } from "../../../shared/gameConstants.js";
 import { getPlayerGameState, dealCurrentPacket } from "./gameService.js";
 import { getValidRoom } from "../utils/roomUtils.js";
 

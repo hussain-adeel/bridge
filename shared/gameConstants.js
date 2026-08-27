@@ -68,7 +68,7 @@ export const FIRST_TRICK_NUMBER = 1;
 export const CARDS_PER_TRICK = 4;
 export const TRICK_RESULT_DURATION_MS = 3000;
 export const ROUND_END_DURATION_MS = 7000;
-export const MATCH_END_DURATION_MS = 7000;
+export const MATCH_END_DURATION_MS = 25000;
 
 export const TEAM_IDS = {
     ONE: "team_1",
