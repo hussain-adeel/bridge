@@ -3,7 +3,6 @@ import BridgeGameHeader from "./BridgeGameHeader";
 import PlayerAvatar from "./PlayerAvatar";
 import PlayerHand from "./PlayerHand";
 import Bidding from "./Bidding";
-import GameLog from "./GameLog";
 import MiddleStack from "./MiddleStack";
 import End from "./End";
 import { DEAL_CARD_COUNTS, GAME_PHASES, MAX_PLAYERS, TEAM_IDS } from "../../../shared/gameConstants.js";
@@ -48,7 +47,7 @@ export default function BridgeGameBoard({
     const isGamePaused = disconnectedPlayers.length > 0;
 
     return (
-        <div className="relative w-full h-screen box-border bg-board-bg flex flex-col overflow-hidden">
+        <div className="game-board-surface relative box-border flex min-h-screen w-full flex-col overflow-x-hidden overflow-y-auto select-none">
             <BridgeGameHeader
                 gamePhase={gameState.gamePhase}
                 isMyTeamBid={isMyTeamBid}
@@ -61,9 +60,9 @@ export default function BridgeGameBoard({
                 myTeamId={myTeamId}
             />
 
-            <div className="grow w-full overflow-auto flex flex-col">
-                <div className="flex-1 flex min-w-max items-center justify-center p-2 md:p-4">
-                    <div className="w-full min-h-125 grid grid-cols-[minmax(30px,150px)_1fr_minmax(30px,150px)] md:gap-4 max-w-7xl transition-all duration-500">
+            <div className="grow w-full flex flex-col">
+                <div className="flex min-w-0 flex-1 items-center justify-center p-2 md:p-4">
+                    <div className="grid min-h-125 w-full min-w-0 max-w-7xl grid-cols-[minmax(30px,150px)_minmax(0,1fr)_minmax(30px,150px)] transition-all duration-500 md:gap-4">
                         <div className="col-start-2 row-start-1 flex justify-center items-center">
                             <PlayerAvatar
                                 player={partner}
@@ -120,15 +119,6 @@ export default function BridgeGameBoard({
                                     enemyMatchScore={enemyMatchScore}
                                 />
                             ) : null}
-                            {(gameState.gamePhase === GAME_PHASES.BIDDING || gameState.gamePhase === GAME_PHASES.PLAYING) && (
-                                <div className="w-full max-w-md xl:hidden">
-                                    <GameLog
-                                        entries={gameState.gameLog ?? []}
-                                        players={safePlayers}
-                                        myTeamId={myTeamId}
-                                    />
-                                </div>
-                            )}
                         </div>
 
                         <div className="col-start-3 row-start-2 flex justify-center items-center -rotate-90 origin-center">
@@ -141,12 +131,10 @@ export default function BridgeGameBoard({
                             />
                         </div>
 
-                        <div className="col-start-2 row-start-3 flex flex-col justify-end items-center pb-4">
+                        <div className="col-start-2 row-start-3 flex flex-col items-center justify-end pb-4 pt-10">
                             <PlayerHand
                                 cards={myCards}
                                 leadSuit={leadSuit}
-                                trumpSuit={gameState.contract?.suit}
-                                trumpBroken={gameState.playingData?.trumpBroken}
                                 gamePhase={gameState.gamePhase}
                                 isMyTurn={isMyTurn && !isGamePaused}
                                 tricksWon={tricksWon}

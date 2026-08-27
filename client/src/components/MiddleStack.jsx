@@ -33,7 +33,7 @@ export default function MiddleStack({ cardsOnTable, myIndex, trickWinnerIndex })
             : "";
 
     return (
-        <div className="relative h-64 w-64 mx-auto">
+        <div className="trick-table relative mx-auto h-64 w-64">
             {playedCards.left && (
                 <div className={`absolute top-1/2 left-4 -translate-y-1/2 z-10 transform ${getCardHighlight(playedCards.left)}`} style={{ transform: `rotate(${90 + getStableRotation(playedCards.left)}deg)` }}>
                     <Card suit={playedCards.left.suit} rank={playedCards.left.rank} />

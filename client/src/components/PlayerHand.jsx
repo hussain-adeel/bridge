@@ -4,14 +4,12 @@ import { GAME_PHASES, RANKS, SUITS } from "../../../shared/gameConstants.js";
 import Card from "./Card";
 import { useGameActions } from "../hooks/useGameActions.js";
 
-export default function PlayerHand({ cards, leadSuit, trumpSuit, trumpBroken, gamePhase, isMyTurn, tricksWon }) {
+export default function PlayerHand({ cards, leadSuit, gamePhase, isMyTurn, tricksWon }) {
     const [selectedCard, setSelectedCard] = useState(null);
     const { code: roomCode } = useParams();
     const { onPlayCard } = useGameActions(roomCode);
     const safeCards = cards ?? [];
     const safeLeadSuit = leadSuit ?? "";
-    const safeTrumpSuit = trumpSuit ?? "";
-    const safeTrumpBroken = trumpBroken ?? false;
     const safeIsMyTurn = isMyTurn ?? false;
     const safeTricksWon = tricksWon ?? 0;
 
@@ -29,10 +27,9 @@ export default function PlayerHand({ cards, leadSuit, trumpSuit, trumpBroken, ga
         const hasLeadSuit = safeLeadSuit && safeCards.some((playerCard) => normalizeSuit(playerCard.suit) === normalizeSuit(safeLeadSuit));
         if (hasLeadSuit) return normalizeSuit(card.suit) === normalizeSuit(safeLeadSuit);
 
-        const isTrump = normalizeSuit(card.suit) === normalizeSuit(safeTrumpSuit);
-        const hasNonTrumpCard = safeCards.some((playerCard) => normalizeSuit(playerCard.suit) !== normalizeSuit(safeTrumpSuit));
-
-        return safeTrumpBroken || !isTrump || !hasNonTrumpCard;
+        // Once another player has led the trick, a player who is void in the
+        // lead suit may discard any card, including an unbroken trump card.
+        return true;
     };
 
     const handlePlay = () => {
@@ -49,8 +46,12 @@ export default function PlayerHand({ cards, leadSuit, trumpSuit, trumpBroken, ga
     };
 
     return (
-        <div className="w-full min-h-50 flex flex-col items-center justify-end relative">
-            <h1 className={`flex ${safeIsMyTurn ? "text-text-main" : "text-white"} font-extrabold font-mono select-none`}>{handText()}</h1>
+        <div className="relative flex min-h-50 w-full flex-col items-center justify-end">
+            <div className="mb-3 flex h-7 items-center justify-center">
+                <h1 className={`flex ${safeIsMyTurn ? "text-text-main" : "text-white"} font-extrabold font-mono select-none`}>
+                    {handText()}
+                </h1>
+            </div>
             <div className="flex flex-row justify-center items-end h-40">
                 {sortedCards.map((singleCard, index) => {
                     const isNewSuit = index > 0 && normalizeSuit(singleCard.suit) !== normalizeSuit(sortedCards[index - 1].suit);

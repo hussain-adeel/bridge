@@ -39,30 +39,28 @@ export default function End({myTeamId, roundWinnerTeamId, matchWinnerTeamId, rou
     }
 
     return (
-        <div className="relative opacity-90 z-100 w-full max-w-md flex flex-col mx-auto bg-slate-800 p-4 rounded-xl shadow-2xl border border-slate-600 gap-6 font-normal select-none items-center">
+        <div className="relative z-100 mx-auto flex w-full max-w-md flex-col items-center gap-5 rounded-2xl border border-slate-700/80 bg-slate-900/90 p-6 font-normal shadow-[0_24px_64px_rgba(0,0,0,0.45)] backdrop-blur-md select-none">
             <div className="cursor-default text-center">
-                <h1 className="text-white font-extrabold text-3xl mb-2">
+                <h1 className="mb-3 text-2xl font-extrabold uppercase tracking-[0.12em] text-white">
                     {safeMatchOver ? "Match Summary" : "Round Summary"}
                 </h1>
-                <span className={`${safeTeamWonMatch || safeTeamWonRound ? 'text-green-300' : 'text-red-300'} font-semibold text-xl`}>{summaryStatusText()}</span>
-                <br />
-                <h2 className="text-white font-extrabold text-3xl mt-10">
+                <span className={`inline-flex rounded-full px-3 py-1 text-sm font-extrabold ${safeTeamWonMatch || safeTeamWonRound ? 'bg-emerald-400/10 text-green-300 ring-1 ring-emerald-300/30' : 'bg-red-400/10 text-red-300 ring-1 ring-red-300/30'}`}>{summaryStatusText()}</span>
+                <h2 className="mt-6 rounded-xl border border-slate-700/70 bg-slate-950/35 px-8 py-4 text-2xl font-extrabold text-white">
                     {safeMatchOver ? "Match Score" : "Round Score"}
                     <br/>
                     <span className="text-friendly">{safeMatchOver ? safeTeamMatchScore : safeTeamRoundScore}</span> 
                     <span className="text-text-main mx-2">-</span> 
                     <span className="text-enemy">{safeMatchOver ? safeEnemyMatchScore : safeEnemyRoundScore}</span>
                 </h2>
-                <br />
-                <h2 className="text-white font-extrabold text-3xl">
+                <h2 className="mt-3 rounded-xl border border-slate-700/70 bg-slate-950/20 px-8 py-3 text-xl font-extrabold text-white">
                     {safeMatchOver ? "Previous Round Score" : "Ongoing Match Score"}
                     <br></br>
                     <span className="text-friendly">{safeMatchOver ? safeTeamRoundScore : safeTeamMatchScore}</span> 
                     <span className="text-text-main mx-2">-</span> 
                     <span className="text-enemy">{safeMatchOver ? safeEnemyRoundScore : safeEnemyMatchScore}</span>
                 </h2>
-                <div className="pt-12">
-                    <div className="relative w-full h-12 bg-slate-800 rounded flex items-center justify-center overflow-hidden border border-slate-600 shadow-inner cursor-default">
+                <div className="pt-6">
+                    <div className="relative flex h-9 w-full cursor-default items-center justify-center overflow-hidden rounded-full border border-slate-700/80 bg-slate-950/60 shadow-inner">
                     
                     <div 
                         className="absolute left-0 top-0 h-full bg-linear-to-r from-blue-700 to-blue-500"

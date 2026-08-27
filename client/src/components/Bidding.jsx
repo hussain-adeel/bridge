@@ -82,7 +82,7 @@ export default function Bidding({currSuit, currTricks, gamePhase, auctionNumber,
                     `}
                     disabled={safeCurrTricks === 0 && safeCurrSuit === "" || !safeIsMyTurn}
                 >
-                    {confirmPass ? "Confrim Pass?" : "Pass"}
+                    {confirmPass ? "Confirm Pass?" : "Pass"}
                 </button>
                 <button 
                     onClick={() => {
