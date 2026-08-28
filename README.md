@@ -1,101 +1,164 @@
-# Bridge: Sudden Death 🃏
+# Bridge: Sudden Death
 
-> A full-stack, real-time multiplayer web application featuring a fast-paced, sudden-death variant of the classic card game Bridge.
+> A real-time, four-player multiplayer card game that puts a fast, sudden-death twist on Bridge.
 
-This project is a complete 4-player, 2v2 multiplayer experience built with a strictly decoupled architecture. It separates the real-time networking layer from the pure game state engine, ensuring a scalable, cheat-proof server environment. Player data, authentication, and lifetime statistics are handled securely via PostgreSQL row-level security.
+[Play Bridge: Sudden Death](https://bridge.adeelhussain.com)
 
----
+<!-- Add a short gameplay video or GIF here once recorded. -->
 
-## 🚀 Tech Stack
+## Overview
 
-| Environment | Technologies |
-| :--- | :--- |
-| **Frontend** | React, Vite, Tailwind CSS, React Router |
-| **Backend** | Node.js, Express, Socket.io |
-| **Database & Auth** | Supabase, PostgreSQL |
-| **State Management** | Custom Domain-Driven Engine (`RoomService` / `BridgeGame`) |
+Bridge: Sudden Death is a full-stack web application for live 2v2 card matches. Players sign in, create or join a room with a code, ready up, bid on a contract, and play through a synchronized match in the browser. The server is authoritative: it validates every move, determines trick winners, and sends each player only the game state they are allowed to see.
 
----
+## Highlights
 
-## ✨ Key Features
+- Real-time four-player rooms with Socket.IO synchronization, reconnection support, ready checks, and host-controlled match length.
+- Server-authoritative game engine that validates turn order, card ownership, bidding rules, following suit, and the trump-break rule.
+- Three-stage deal and two-stage auction that build from five to thirteen cards per player.
+- Sudden-death round resolution: the declarer's team wins when it makes its contract; defenders win as soon as the contract becomes impossible.
+- Live game log, trick table, turn indicators, bidding controls, responsive game board, and end-of-round/match summaries.
+- Supabase authentication, public player profiles, persistent match history, and lifetime match, round, and trick statistics.
+- Tests for core deck, shuffle, trick-winner, bidding-order, dealing, and card-play validation logic.
 
-*   **Real-Time Sync:** Lightning-fast socket communication for room lobbies, bidding phases, and card playing.
-*   **Secure State Management:** The server acts as the single source of truth. Clients are only broadcasted sanitized game states (their own hand and public board data) to prevent network-sniffing exploits.
-*   **Persistent Profiles:** Integrated authentication and personalized dashboards displaying lifetime matches, win rates, and recent match histories.
-*   **Custom Ruleset:** A modernized, aggressive take on Bridge featuring a 3-stage dealing process and sudden-death match resolution.
+## Tech stack
 
----
+| Area | Technology |
+| --- | --- |
+| Client | React, Vite, Tailwind CSS, React Router |
+| Real-time server | Node.js, Express, Socket.IO |
+| Authentication and data | Supabase Auth, PostgreSQL, Row Level Security |
+| Deployment | Vercel (client), Render (server), Supabase (database/auth) |
+| Testing | Vitest |
 
-## 📖 Custom Game Rules
+## How a match works
 
-This application implements a highly modified, faster-paced version of standard Bridge. Four players are divided into two partnerships sitting across from one another. 
+1. Four players form two opposing partnerships.
+2. Each player receives five cards and bids a target number of tricks with a trump suit.
+3. Four more cards are dealt, followed by a second bidding phase.
+4. The highest bid sets the contract and declarer; a final four cards complete each 13-card hand.
+5. Players must follow the led suit when able. When void in that suit, they can trump or discard.
+6. The round ends as soon as the contract is made or cannot be made. The first partnership to the chosen number of round wins takes the match.
 
-### Phase 1: The Deal & The Auction
-*   **The First Deal:** Each player is dealt an initial 5 cards.
-*   **The Opening Auction:** A random player opens. Bids must declare a trump suit and a target number of tricks (minimum opening bid is **6 tricks**). Play proceeds clockwise.
-*   **The Second Deal:** Players receive 4 additional cards (9 total).
-*   **The Second Auction:** Initiated by the player holding the highest bid from the first auction.
-*   **The Final Deal:** The highest bid becomes the official contract. The winner is the **Declarer**. The final 4 cards are dealt, completing the 13-card hands.
+## Architecture
 
-### Phase 2: The Play
-*   **The Lead:** The Declarer plays the first card. The suit of this card becomes the "lead suit."
-*   **Following Suit:** Players must play a card in the lead suit if they have one.
-*   **Trumping & Discarding:** If void in the lead suit, a player may play a trump card to win, or discard any other suit to intentionally lose.
-*   **Winning the Trick:** The highest trump card wins. If no trump is played, the highest card of the lead suit wins.
-
-### Phase 3: Sudden-Death Resolution
-*   **Declarer Victory:** The game ends immediately the moment the Declarer's team secures enough tricks to meet their bid.
-*   **Defender Victory:** The game ends immediately the moment the Defenders win enough tricks to make the Declarer's bid mathematically impossible.
-
----
-
-## 🏗️ Architecture Overview
-
-The backend is built using a domain-driven approach to keep networking code separate from game logic:
-
-*   **`server.js`:** Initializes Express and Socket.io.
-*   **`socket/`:** Traffic controllers. Listens for client events and passes data to the game engine.
-*   **`game/RoomService.js`:** The source of truth map. Manages all active lobbies, enforces the 4-player limit, and sanitizes states before broadcasting.
-*   **`game/BridgeGame.js`:** The pure game engine. Handles the 52-card deck, phase transitions, valid move verification, and sudden-death triggers without any knowledge of the network layer.
-
----
-
-## 🛠️ Local Installation
-
-**1. Clone the repository**
-```bash
-git clone https://github.com/hussain-adeel/bridge
-cd bridge
+```text
+React client
+  ├─ Supabase Auth ──────────────┐
+  └─ Socket.IO client ───────────┼─> Express + Socket.IO server
+                                 │      ├─ socket handlers
+                                 │      ├─ room service
+                                 │      └─ pure game engine
+Supabase PostgreSQL <────────────┘
+  ├─ profiles and aggregate player statistics
+  ├─ matches
+  └─ match_players
 ```
 
-**2. Set up the Backend**
+The socket handlers route events to services. `roomService` owns active room/lobby state, while `gameService` applies game rules using the pure functions in `server/src/game/engine.js`. Before broadcasting, the server removes every other player's hand so clients cannot inspect hidden cards.
+
+## Local development
+
+### Prerequisites
+
+- Node.js 22 or newer
+- A Supabase project configured with Auth and the `profiles`, `matches`, and `match_players` tables
+- A Supabase `increment_profile_stats` RPC function for atomically updating player aggregates
+
+### 1. Clone and install
+
 ```bash
+git clone https://github.com/hussain-adeel/bridge.git
+cd bridge
+
 cd server
 npm install
-```
-*Create a `.env` file in the backend directory with your Supabase credentials.*
-```env
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-PORT=3001
-```
-*Start the server:*
-```bash
-npm run dev
-```
 
-**3. Set up the Frontend**
-```bash
 cd ../client
 npm install
 ```
-*Create a `.env` file in the frontend directory.*
+
+### 2. Configure the backend
+
+Create `server/.env`:
+
 ```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_SERVER_URL=http://localhost:3001
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+FRONTEND_URL=http://localhost:5173
+PORT=3001
 ```
-*Start the Vite development server:*
+
+The service role key is server-only. Never put it in the client or commit it to Git.
+
+Start the server:
+
 ```bash
+cd server
 npm run dev
 ```
+
+### 3. Configure the client
+
+Create `client/.env`:
+
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
+VITE_SERVER_URL=http://localhost:3001
+```
+
+Start the client:
+
+```bash
+cd client
+npm run dev
+```
+
+Open the local Vite URL, usually `http://localhost:5173`.
+
+## Testing
+
+Run the server test suite:
+
+```bash
+cd server
+npm test
+```
+
+The current suite covers core game-engine behavior and game-service validation, including 52-card deck integrity, shuffle preservation, trick winner selection, staged dealing, invalid plays, follow-suit enforcement, and trump rules.
+
+## Production deployment
+
+The production client is available at [bridge.adeelhussain.com](https://bridge.adeelhussain.com).
+
+- **Vercel** builds and hosts `client`. Its production environment needs `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and the public Render server URL in `VITE_SERVER_URL`.
+- **Render** runs `server` with `npm start`. It needs `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `FRONTEND_URL` set to the exact production client origin, such as `https://bridge.adeelhussain.com` (no trailing slash).
+- **Supabase** provides OAuth/email authentication and PostgreSQL persistence. Client-facing Supabase keys are publishable by design; database access remains protected with Row Level Security. The service-role key stays on Render only.
+
+## Project structure
+
+```text
+bridge/
+├─ client/
+│  └─ src/
+│     ├─ components/       # Lobby, game board, profiles, and UI
+│     ├─ context/          # Authentication state
+│     ├─ hooks/            # Room/game actions and data hooks
+│     └─ utils/            # Supabase and Socket.IO clients
+├─ server/
+│  └─ src/
+│     ├─ game/             # Pure game engine and in-memory state store
+│     ├─ services/         # Room, game, and statistics workflows
+│     ├─ socket/           # Socket event handlers and broadcasts
+│     └─ utils/            # Supabase and room validation helpers
+└─ shared/
+   └─ gameConstants.js     # Shared events, phases, cards, and rules
+```
+
+## Demo
+
+A short end-to-end gameplay video will be added here soon. It will cover authentication, room creation, joining from a second browser, bidding, trick play, match completion, and persisted profile statistics.
+
+## Author
+
+Built by [Adeel Hussain](https://github.com/hussain-adeel).

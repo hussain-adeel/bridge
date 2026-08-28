@@ -492,6 +492,7 @@ export function startNextRound({ roomCode }) {
     }
 
     const gameLog = room.gameState.gameLog;
+    const matchId = room.gameState.matchId;
     const nextRoundNumber = room.gameState.roundNumber + 1;
     const matchScore = room.gameState.matchScore;
     const activePlayerIndex = getNextBidderIndex(
@@ -502,6 +503,7 @@ export function startNextRound({ roomCode }) {
     )
 
     room.gameState = createInitialGameState();
+    room.gameState.matchId = matchId;
     room.gameState.roundNumber = nextRoundNumber;
     room.gameState.matchScore = matchScore;
     room.gameState.gamePhase = GAME_PHASES.DEALING;

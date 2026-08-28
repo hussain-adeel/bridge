@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { createDeck, createInitialGameState } from "../game/engine.js";
 import { AUCTION_NUMBERS, DEAL_NUMBERS, GAME_PHASES, TEAM_IDS } from "../../../shared/gameConstants.js";
-import { dealCurrentPacket, playCard } from "./gameService.js";
-import { saveRoom, deleteRoom } from "../game/state.js";
+import { dealCurrentPacket, playCard, startNextRound } from "./gameService.js";
+import { saveRoom, deleteRoom, getRoom } from "../game/state.js";
 
 vi.mock("./statsService.js", () => ({
     completeMatchRecord: vi.fn(),
@@ -126,6 +126,27 @@ describe("later deal packets", () => {
         expect(result.success).toBe(false);
         expect(result.error).toBe("A final contract is required before the final deal.");
         expect(gameState.remainingDeck).toHaveLength(16);
+    });
+});
+
+describe("startNextRound", () => {
+    test("preserves the active match record across rounds", () => {
+        const gameState = createInitialGameState();
+        gameState.matchId = "match-123";
+        gameState.gamePhase = GAME_PHASES.ROUND_END;
+        gameState.roundWinnerTeamId = TEAM_IDS.ONE;
+        gameState.lastTrickWinnerIndex = 0;
+        gameState.playerTricks = { 0: 3, 1: 1, 2: 2, 3: 1 };
+
+        saveRoom(roomCode, {
+            roomState: { roomCode, players: roomPlayers },
+            gameState,
+        });
+
+        const result = startNextRound({ roomCode });
+
+        expect(result.success).toBe(true);
+        expect(getRoom(roomCode).gameState.matchId).toBe("match-123");
     });
 });
 
