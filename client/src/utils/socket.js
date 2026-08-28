@@ -40,7 +40,12 @@ socket.io.on("reconnect_failed", () => {
 // Utility Function(s)
 export function emitAsync(eventName, data) {
     return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            reject(new Error("Unable to reach the game server. Please try again."));
+        }, 10000);
+
         socket.emit(eventName, data, (response) => {
+            clearTimeout(timeout);
             if (response?.success) resolve(response); 
             else reject(new Error(response?.error || "Unknown socket error"));
         });
