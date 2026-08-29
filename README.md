@@ -1,14 +1,14 @@
-# Bridge: Sudden Death
+# Bridge
 
 > A real-time, four-player multiplayer card game that puts a fast, sudden-death twist on Bridge.
 
-[Play Bridge: Sudden Death](https://bridge.adeelhussain.com)
+[Play Bridge](https://bridge.adeelhussain.com)
 
 <!-- Add a short gameplay video or GIF here once recorded. -->
 
 ## Overview
 
-Bridge: Sudden Death is a full-stack web application for live 2v2 card matches. Players sign in, create or join a room with a code, ready up, bid on a contract, and play through a synchronized match in the browser. The server is authoritative: it validates every move, determines trick winners, and sends each player only the game state they are allowed to see.
+Bridge is a full-stack web application for live 2v2 card matches. Players sign in, create or join a room with a code, ready up, bid on a contract, and play through a synchronized match in the browser. The server is authoritative: it validates every move, determines trick winners, and sends each player only the game state they are allowed to see.
 
 ## Highlights
 
